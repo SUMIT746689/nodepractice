@@ -6,7 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"st/ent/user"
+	"pos/ent/user"
 	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"

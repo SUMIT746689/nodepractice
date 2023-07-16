@@ -1,9 +1,9 @@
 package main
 
 import (
-	"st/cmd/api_server/routes"
-	"st/pkg"
-	"st/pkg/config"
+	"pos/cmd/api_server/routes"
+	"pos/pkg"
+	"pos/pkg/config"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"

@@ -1,35 +1,25 @@
 package pkg
 
 import (
-	"database/sql"
 	"log"
-	"st/ent"
+	"os"
+	"pos/ent"
 
 	"entgo.io/ent/dialect"
-	entsql "entgo.io/ent/dialect/sql"
-	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/go-sql-driver/mysql"
 )
 
 var client *ent.Client
 
 func InitEnt()  {
-	c := open("postgresql://postgres:@127.0.0.1/starter_template")
+	c, err := ent.Open(dialect.MySQL, os.Getenv("DB_URL"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	client = c
 }
 
 func EntClient() *ent.Client {
 	return client
-}
-
-
-// Open new connection
-func open(databaseUrl string) *ent.Client {
-	db, err := sql.Open("pgx", databaseUrl)
-	if err != nil {
-			log.Fatal(err)
-	}
-
-	// Create an ent.Driver from `db`.
-	drv := entsql.OpenDB(dialect.Postgres, db)
-	return ent.NewClient(ent.Driver(drv))
 }

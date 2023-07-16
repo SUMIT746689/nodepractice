@@ -8,9 +8,9 @@ import (
 	"fmt"
 	"log"
 
-	"st/ent/migrate"
+	"pos/ent/migrate"
 
-	"st/ent/user"
+	"pos/ent/user"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"

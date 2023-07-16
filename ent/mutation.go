@@ -6,8 +6,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"st/ent/predicate"
-	"st/ent/user"
+	"pos/ent/predicate"
+	"pos/ent/user"
 	"sync"
 	"time"
 

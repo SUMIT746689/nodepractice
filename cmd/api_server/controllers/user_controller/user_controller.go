@@ -1,7 +1,7 @@
 package usercontroller
 
 import (
-	"st/pkg"
+	"pos/pkg"
 
 	"github.com/gofiber/fiber/v2"
 )

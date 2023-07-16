@@ -3,8 +3,8 @@
 package ent
 
 import (
-	"st/ent/schema"
-	"st/ent/user"
+	"pos/ent/schema"
+	"pos/ent/user"
 	"time"
 )
 

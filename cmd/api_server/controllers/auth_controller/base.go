@@ -2,9 +2,10 @@ package authcontroller
 
 import (
 	"context"
+	"log"
 	"os"
-	"st/ent/user"
-	"st/pkg"
+	"pos/ent/user"
+	"pos/pkg"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -23,6 +24,7 @@ func Register(c *fiber.Ctx) error {
 
 	err = pkg.EntClient().User.Create().SetUsername(req.Username).SetPassword(hashedPass).Exec(context.Background())
 	if err != nil {
+		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 

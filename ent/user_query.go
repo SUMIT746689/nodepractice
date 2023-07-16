@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"st/ent/predicate"
-	"st/ent/user"
+	"pos/ent/predicate"
+	"pos/ent/user"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"

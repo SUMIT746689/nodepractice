@@ -1,7 +1,7 @@
 package routes
 
 import (
-	usercontroller "st/cmd/api_server/controllers/user_controller"
+	usercontroller "pos/cmd/api_server/controllers/user_controller"
 
 	"github.com/gofiber/fiber/v2"
 )
