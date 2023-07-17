@@ -1,10 +1,11 @@
 package authcontroller
 
 import (
-	"context"
 	"log"
 	"os"
 	"pos/ent/user"
+	"pos/internal/app"
+	userrepo "pos/internal/repository/user_repo"
 	"pos/pkg"
 	"time"
 
@@ -13,30 +14,20 @@ import (
 )
 
 func Register(c *fiber.Ctx) error {
-	req := new(registerRequest)
+	req := new(app.User)
 
 	err := pkg.BindNValidate(c, req)
 	if err != nil {
 		return c.Status(fiber.StatusUnprocessableEntity).JSON(err.Error())
 	}
 
-	hashedPass := pkg.Hash(req.Password)
-
-	err = pkg.EntClient().User.Create().SetUsername(req.Username).SetPassword(hashedPass).Exec(context.Background())
+	_, err = userrepo.Save(c.Context(), req)
 	if err != nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
 	return c.SendStatus(fiber.StatusOK)
-}
-
-type registerRequest struct {
-	Username        string `json:"username" validate:"required_without_all=Email PhoneNumber"`
-	Email           string `json:"email" validate:"omitempty,required_without_all=Username PhoneNumber,email"`
-	PhoneNumber     string `json:"phone_number" validate:"omitempty,required_without_all=Email Username,numeric"`
-	Password        string `json:"password" validate:"required"`
-	ConfirmPassword string `json:"confirm_password" validate:"required,eqfield=Password"`
 }
 
 func Login(c *fiber.Ctx) error {
@@ -51,6 +42,7 @@ func Login(c *fiber.Ctx) error {
 
 	exists, err := pkg.EntClient().User.Query().Where(user.Username(identity)).Exist(c.Context())
 	if err != nil {
+		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	if !exists {
@@ -59,9 +51,9 @@ func Login(c *fiber.Ctx) error {
 
 	user_, err := pkg.EntClient().User.Query().Where(user.Username(identity)).Only(c.Context())
 	if err != nil {
+		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
-
 
 	if pkg.Hash(pass) != user_.Password {
 		return c.SendStatus(fiber.StatusUnauthorized)
@@ -83,6 +75,6 @@ func Login(c *fiber.Ctx) error {
 }
 
 type loginRequest struct {
-	Identity string `json:"identity" validate:"required"`
+	Identity string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }

@@ -14,8 +14,13 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("username"),
+		field.String("first_name").MaxLen(50),
+		field.String("last_name").MaxLen(50),
+		field.String("username").MaxLen(50).Unique(),
 		field.String("password").Sensitive(),
+		field.String("phone_number").Optional(),
+		field.String("email").Optional(),
+		field.Enum("role").Values("SUPERADMIN", "ADMIN", "CASHIER", "CUSTOMER"),
 	}
 }
 
@@ -26,8 +31,8 @@ func (User) Edges() []ent.Edge {
 
 func (User) Mixin() []ent.Mixin {
 	return []ent.Mixin{
-			mixin.Time{},
-			// Or, mixin.CreateTime only for create_time
-			// and mixin.UpdateTime only for update_time.
+		mixin.Time{},
+		// Or, mixin.CreateTime only for create_time
+		// and mixin.UpdateTime only for update_time.
 	}
 }

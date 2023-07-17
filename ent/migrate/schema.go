@@ -13,8 +13,13 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
-		{Name: "username", Type: field.TypeString},
+		{Name: "first_name", Type: field.TypeString, Size: 50},
+		{Name: "last_name", Type: field.TypeString, Size: 50},
+		{Name: "username", Type: field.TypeString, Unique: true, Size: 50},
 		{Name: "password", Type: field.TypeString},
+		{Name: "phone_number", Type: field.TypeString, Nullable: true},
+		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "role", Type: field.TypeEnum, Enums: []string{"SUPERADMIN", "ADMIN", "CASHIER", "CUSTOMER"}},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{

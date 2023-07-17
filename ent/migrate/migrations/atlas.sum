@@ -1,2 +1,4 @@
-h1:C5OcqqBzNHjFq4lt0oj3MGrF5Qkbu+6nq7AdngjzvJw=
+h1:bj3czJWdR8uHcWnWT8kRhwBW+Zy3ODTcno7w4SYiSRU=
 20230716065542_init_db.sql h1:/EMIgQaJU0arRPa0MvNm8807b1FZQMQnL8amXa8Y7AE=
+20230717033051_exteded_user_attributes.sql h1:/ol1PgCM7tmXu1yEX69zxUeOQKYrWfcy6bzq8nvWJdE=
+20230717043700_make_username_unique.sql h1:1loJBjRn0wOuu3bgxXa//Cuhoiea0v1tnSr19HQfJZg=
