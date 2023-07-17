@@ -1,7 +1,7 @@
 export default function Dashboard(){
   return (
     <>
-      <div>dashbaord</div>
+      <div className="bg-sky-800 w-screen">dashbaord</div>
     </>
   )
 }

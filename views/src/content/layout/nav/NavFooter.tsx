@@ -13,22 +13,25 @@ const useStyles = createStyles((theme) => ({
     display: 'block',
     width: '100%',
     padding: theme.spacing.md,
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.black,
+    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.orange[0],
 
     '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.orange[0],
+      color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.orange[8],
+
     },
   },
+  text: {
+    opacity: 0.8,
+  }
 }));
 
 interface UserButtonProps extends UnstyledButtonProps {
   image: string;
-  name: string;
-  email: string;
-  icon?: React.ReactNode;
 }
 
-export function UserButton({ image, name, email, icon, ...others }: UserButtonProps) {
+export function NavFooter({ image, ...others }: UserButtonProps) {
+  const user ={}
   const { classes } = useStyles();
 
   return (
@@ -38,15 +41,15 @@ export function UserButton({ image, name, email, icon, ...others }: UserButtonPr
 
         <div style={{ flex: 1 }}>
           <Text size="sm" weight={500}>
-            {name}
+            {user?.name}
           </Text>
 
-          <Text color="dimmed" size="xs">
-            {email}
+          <Text size="xs" className={classes.text}>
+            {user?.email}
           </Text>
         </div>
 
-        {icon || <IconChevronRight size="0.9rem" stroke={1.5} />}
+        {user?.icon || <IconChevronRight size="0.9rem" stroke={1.5} />}
       </Group>
     </UnstyledButton>
   );

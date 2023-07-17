@@ -1,6 +1,6 @@
 import { Layout, Menu } from "antd";
 import { Form, Outlet, redirect, useNavigate } from "react-router-dom";
-import { Button } from "./ui/button";
+import { Button } from "../../components/ui/button";
 import { ofetch } from "@/lib/ofetch";
 import { useState } from "react";
 import { Head, NavbarNested } from "./nav/Navbar";
