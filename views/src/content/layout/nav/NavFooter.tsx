@@ -1,3 +1,4 @@
+import { useLoginUserMutation } from '@/redux/services/auth';
 import {
   UnstyledButton,
   UnstyledButtonProps,
@@ -31,8 +32,9 @@ interface UserButtonProps extends UnstyledButtonProps {
 }
 
 export function NavFooter({ image, ...others }: UserButtonProps) {
-  const user ={}
+  
   const { classes } = useStyles();
+  const {data:user}=useLoginUserMutation();
 
   return (
     <UnstyledButton className={classes.user} {...others}>

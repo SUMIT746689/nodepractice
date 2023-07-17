@@ -21,7 +21,6 @@ atlas migrate diff migration_name \
   --dev-url "mysql://root:root@127.0.0.1/pos_online_atlas?parseTime=true"
 ```
 
+<!-- hash first then migration for mehedi  -->
 # apply the migration
-atlas migrate apply \
-  --dir "file://ent/migrate/migrations" \
-  --url "mysql://root:root@127.0.0.1/pos_online?parseTime=true"
+atlas migrate apply --dir "file://ent/migrate/migrations" --url "mysql://root:mypassword@127.0.0.1/pos_online?parseTime=true"

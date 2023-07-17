@@ -4,7 +4,7 @@ import { Button } from "../../components/ui/button";
 import { ofetch } from "@/lib/ofetch";
 import { useState } from "react";
 import { Head, NavbarNested } from "./nav/Navbar";
-import { AppShell, Navbar, Header } from '@mantine/core';
+import { AppShell, Navbar, Header, Grid, Flex } from '@mantine/core';
 
 export default function MainLayout() {
   return (
@@ -15,10 +15,12 @@ export default function MainLayout() {
       >
         <Outlet />
       </AppShell> */}
-      <div className="flex">
+      <Flex sx={{height:'100vh',width:'100%'}}>
         <NavbarNested />
-        <Outlet/>
-      </div>
+        <Grid>
+          <Outlet />  
+        </Grid>
+      </Flex>
     </>
   )
 }
