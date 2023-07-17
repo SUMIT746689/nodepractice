@@ -8,21 +8,23 @@ import Layout, { LayoutRouteAction } from './components/Layout.tsx'
 import Dashboard from './routes/dashboard.tsx'
 import UserIndex from './routes/users/index.tsx'
 import { userList } from './repository/user.ts'
+import { Provider } from 'react-redux'
+import { store } from './redux/store.ts'
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Layout />,
-    loader: async ({request}) => {
-        if (!await isLoggedIn()) return redirect('/login')
-        if (new URL(request.url).pathname === "/") return redirect('/dashboard')
-        return null
+    loader: async ({ request }) => {
+      if (!await isLoggedIn()) return redirect('/login')
+      if (new URL(request.url).pathname === "/") return redirect('/dashboard')
+      return null
     },
     action: LayoutRouteAction,
     children: [
       {
         path: "/dashboard",
-        element: <Dashboard/>,
+        element: <Dashboard />,
         loader: async () => {
           if (!await isLoggedIn()) {
             return redirect("/login")
@@ -32,7 +34,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/users",
-        element: <UserIndex/>,
+        element: <UserIndex />,
         loader: async () => {
           if (!await isLoggedIn()) {
             return redirect("/login")
@@ -52,6 +54,8 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </React.StrictMode>,
 )

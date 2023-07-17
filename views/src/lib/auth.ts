@@ -7,7 +7,7 @@ export const isLoggedIn = async () => {
     await ofetch("/api/v1/me", {baseURL: "http://localhost:8080", credentials: "include"})
     return true  
   } catch (err) {
-    
+    return false
   }
   return false 
 }
