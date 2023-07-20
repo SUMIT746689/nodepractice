@@ -1,22 +1,24 @@
 import { Box, Button, Grid, Group, Modal, Select, TextInput } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from '@mantine/form';
-import { usePostUserMutation } from "@/redux/services/user";
+import { usePostUserMutation, useUpdateUserMutation } from "@/redux/services/user";
 import { User } from "@/types/users";
 
 interface CreateOrUodateDataInterFace {
   editData: User | null | undefined;
   // eslint-disable-next-line @typescript-eslint/ban-types
   setEditData: Function;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  refetch: Function;
 }
 
-const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData,setEditData }) => {
+const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, refetch }) => {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (editData) setOpen(true);
   }, [editData]);
 
-  const handleModalClose = ()=>{
+  const handleModalClose = () => {
     setOpen(false);
     setEditData(undefined)
   }
@@ -24,7 +26,7 @@ const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData,se
     <>
       <Modal opened={open} onClose={handleModalClose} title="Authentication" centered>
         {/* Modal content */}
-        <Form editData={editData} />
+        <Form editData={editData} refetch={refetch} handleModalClose={handleModalClose} />
       </Modal>
 
       <Group position="center" pr={20} >
@@ -36,10 +38,14 @@ const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData,se
 
 interface FormInterface {
   editData: User | undefined | null;
+  // refetch: (user: User) => void;
+  handleModalClose: void;
 }
 
-const Form: React.FC<FormInterface> = ({ editData }) => {
-  const [updateUser] = usePostUserMutation()
+const Form: React.FC<FormInterface> = ({ editData, refetch, handleModalClose }) => {
+  const [createUser] = usePostUserMutation()
+  const [updateUser] = useUpdateUserMutation()
+
 
   const form = useForm({
     initialValues: {
@@ -57,7 +63,7 @@ const Form: React.FC<FormInterface> = ({ editData }) => {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
     },
   });
-  
+
   let role = "ADMIN"
   const super_admin_roles = ['ADMIN']
   const admin_roles = ['CASHIER', 'CUSTOMER', 'SUPPLIER', 'VENDOR']
@@ -69,14 +75,31 @@ const Form: React.FC<FormInterface> = ({ editData }) => {
       form.setValues((prev) => ({ ...prev, ...editData }));
       // return form.reset();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   console.log({ form: form.values })
-  const handleFormSubmit = async (values:User) => {
+  const handleFormSubmit = async (values: User) => {
     console.log({ values })
-    const { data,error } = await updateUser(values);
-    console.log({ data,error })
+    try {
+      if (editData) {
+        const { data: ud, error } = await updateUser({ user_id: editData.id, body: values });
+        console.log({ ud, error });
+        if (!error?.data) throw new Error(error.message);
+      }
+      else {
+        const { data: cd, error } = await createUser(values);
+        console.log({ data: cd, error })
+        if (!error?.data) throw new Error(error.message);
+      }
+
+      refetch();
+      handleModalClose();
+    } catch (err) {
+
+      console.log({ err });
+    }
+
   }
 
   return (
@@ -132,7 +155,7 @@ const Form: React.FC<FormInterface> = ({ editData }) => {
           label="Confirm Password"
           placeholder="your confirm password..."
           {...form.getInputProps('confirm_password')}
-          />
+        />
 
         <Select
           label="Select Role"
@@ -140,9 +163,9 @@ const Form: React.FC<FormInterface> = ({ editData }) => {
           {...form.getInputProps('role')}
           // sx={{"::selection":{backgroundColor:'orange'}}}
           data={
-            role === "SUPERADMIN" && super_admin_roles.map(value =>({value,label:value})) || 
-            role === "ADMIN" && admin_roles.map(value =>({value,label:value})) || 
-            role === "TEACHER" && cashier_roles.map(value =>({value,label:value})) || 
+            role === "SUPERADMIN" && super_admin_roles.map(value => ({ value, label: value })) ||
+            role === "ADMIN" && admin_roles.map(value => ({ value, label: value })) ||
+            role === "TEACHER" && cashier_roles.map(value => ({ value, label: value })) ||
             []
           }
         />

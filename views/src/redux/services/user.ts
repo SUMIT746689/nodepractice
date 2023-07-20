@@ -1,5 +1,5 @@
 import { API_KEY } from '@/secret';
-import { User } from '@/types/users'
+import { UpdateUser, User } from '@/types/users'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 // import axios from "axios"
 
@@ -52,16 +52,23 @@ export const userApi = createApi({
         method: 'POST',
         body
       }),
-      // invalidatesTags: ['Users'],
+      invalidatesTags: ['Users'],
       // transformResponse: (result: { data: { users: any } }) =>result.data.users)
     }),
 
-    updateUser: builder.mutation<User, string>({
-      query: (body) => ({
-        url: '/users',
-        method: 'PUT',
+    updateUser: builder.mutation<UpdateUser, string>({
+      query: ({user_id,body}) => ({
+        url:  `/users/${JSON.stringify(user_id)}`,
+        method: 'PATCH',
         body
       })
+    }),
+    deleteUser: builder.mutation<string, string>({
+      query: (user_id) => ({
+        url:  `/users/${JSON.stringify(user_id)}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags:['Users']
     }),
   }),
 
@@ -69,4 +76,4 @@ export const userApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAllUsersQuery, usePostUserMutation, useUpdateUserMutation } = userApi;
+export const { useGetAllUsersQuery, usePostUserMutation, useUpdateUserMutation, useDeleteUserMutation } = userApi;

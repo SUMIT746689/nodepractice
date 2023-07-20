@@ -5,6 +5,7 @@ import (
 	"pos/internal/app"
 	userrepo "pos/internal/repository/user_repo"
 	"pos/pkg"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -39,13 +40,19 @@ func Create(c *fiber.Ctx) error {
 
 func Update(c *fiber.Ctx) error {
 	req := new(updateUserRequest)
+	user_id := c.Params("user_id")
+
+	int_user_id, err_inta_convert := strconv.Atoi(user_id)
+	if err_inta_convert != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
 
 	err := pkg.BindNValidate(c, req)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnprocessableEntity)
 	}
 
-	q := pkg.EntClient().User.Update().SetFirstName(req.FirstName).SetLastName(req.LastName).SetUsername(req.Username)
+	q := pkg.EntClient().User.UpdateOneID(int_user_id).SetFirstName(req.FirstName).SetLastName(req.LastName).SetUsername(req.Username)
 
 	if req.PhoneNumber != "" {
 		q.SetPhoneNumber(req.PhoneNumber)
@@ -60,6 +67,25 @@ func Update(c *fiber.Ctx) error {
 	}
 
 	_, err = q.Save(c.Context())
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	return c.SendStatus(fiber.StatusOK)
+}
+
+func Delete(c *fiber.Ctx) error {
+	user_id := c.Params("user_id")
+
+	log.Println("id", user_id)
+	int_user_id, err_int_convert := strconv.Atoi(user_id)
+
+	log.Println("Error converting user", err_int_convert)
+	if err_int_convert != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	err := pkg.EntClient().User.DeleteOneID(int_user_id).Exec(c.Context())
+	log.Println("upload db", err)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
