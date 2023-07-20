@@ -17,28 +17,19 @@ import { useState } from 'react';
 
 const navItems = [
   { label: 'Dashboard', icon: IconGauge, link:'/dashboard' },
+  { label: 'Users', icon: IconGauge, link:'/users' },
   {
     label: 'Market news',
     icon: IconNotes,
     initiallyOpened: false,
     links: [
-      { label: 'Overview', link: '/' },
-      { label: 'Forecasts', link: '/' },
-      { label: 'Outlook', link: '/' },
-      { label: 'Real time', link: '/' },
+      { label: 'Overview', link: '/Overview' },
+      { label: 'Forecasts', link: '/Forecasts' },
+      { label: 'Outlook', link: '/Outlook' },
+      { label: 'Real time', link: '/Real time' },
     ],
   },
-  {
-    label: 'Market news',
-    icon: IconNotes,
-    initiallyOpened: false,
-    links: [
-      { label: 'Overview', link: '/' },
-      { label: 'Forecasts', link: '/' },
-      { label: 'Outlook', link: '/' },
-      { label: 'Real time', link: '/' },
-    ],
-  }
+  
 ];
 
 const useStyles = createStyles((theme) => ({

@@ -1,4 +1,4 @@
-import { useLoginUserMutation } from '@/redux/services/auth';
+import { useAuthUserQuery, useLoginUserMutation } from '@/redux/services/auth';
 import {
   UnstyledButton,
   UnstyledButtonProps,
@@ -31,10 +31,17 @@ interface UserButtonProps extends UnstyledButtonProps {
   image: string;
 }
 
+interface User {
+  name: string;
+  email?: string;
+  icon?: string;
+}
+
 export function NavFooter({ image, ...others }: UserButtonProps) {
   
   const { classes } = useStyles();
-  const {data:user}=useLoginUserMutation();
+  const {data:user}:{user:User}=useAuthUserQuery();
+  console.log({user})
 
   return (
     <UnstyledButton className={classes.user} {...others}>

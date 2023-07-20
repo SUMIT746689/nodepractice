@@ -10,7 +10,8 @@ import UserIndex from './routes/users/index.tsx'
 import { userList } from './repository/user.ts'
 import { Provider } from 'react-redux'
 import { store } from './redux/store.ts'
-
+import { MantineProvider } from '@mantine/core'
+import { Notifications } from '@mantine/notifications';
 const router = createBrowserRouter([
   {
     path: "/",
@@ -55,7 +56,10 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
-      <RouterProvider router={router} />
+      <MantineProvider withGlobalStyles withNormalizeCSS>
+        <Notifications />
+        <RouterProvider router={router} />
+      </MantineProvider>
     </Provider>
   </React.StrictMode>,
 )

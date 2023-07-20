@@ -1,11 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { incrementByAmount } from "@/redux/features/users";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { useLoginUserMutation } from "@/redux/services/auth";
-import { useGetAllPokemonQuery, useGetPokemonByNameQuery } from "@/redux/services/user";
-import { ofetch } from "ofetch";
 import { Form, redirect, useNavigate } from "react-router-dom";
 
 export default function Login() {

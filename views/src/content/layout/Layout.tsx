@@ -15,11 +15,11 @@ export default function MainLayout() {
       >
         <Outlet />
       </AppShell> */}
-      <Flex sx={{height:'100vh',width:'100%'}}>
+      <Flex sx={{backgroundColor:'orange.1'}} >
         <NavbarNested />
-        <Grid>
-          <Outlet />  
-        </Grid>
+        <div className=" bg-gray-200 bg-opacity-50 w-full h-screen overflow-auto">
+          <Outlet />
+        </div>
       </Flex>
     </>
   )
