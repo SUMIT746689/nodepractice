@@ -1,4 +1,5 @@
 import { useAuthUserQuery, useLoginUserMutation } from '@/redux/services/auth';
+import { AuthUser } from '@/types/auth';
 import {
   UnstyledButton,
   UnstyledButtonProps,
@@ -8,6 +9,7 @@ import {
   createStyles,
 } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
+import { useEffect } from 'react';
 
 const useStyles = createStyles((theme) => ({
   user: {
@@ -31,18 +33,11 @@ interface UserButtonProps extends UnstyledButtonProps {
   image: string;
 }
 
-interface User {
-  name: string;
-  email?: string;
-  icon?: string;
-}
-
 export function NavFooter({ image, ...others }: UserButtonProps) {
   
   const { classes } = useStyles();
-  const {data:user}:{user:User}=useAuthUserQuery();
-  console.log({user})
-
+  const {data:user}=useAuthUserQuery();
+  console.log(user)
   return (
     <UnstyledButton className={classes.user} {...others}>
       <Group>
@@ -50,7 +45,7 @@ export function NavFooter({ image, ...others }: UserButtonProps) {
 
         <div style={{ flex: 1 }}>
           <Text size="sm" weight={500}>
-            {user?.name}
+            {[user?.first_name, user?.last_name].join(' ')}
           </Text>
 
           <Text size="xs" className={classes.text}>

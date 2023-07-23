@@ -2,18 +2,21 @@ import { Box, Button, Grid, Group, Modal, Select, TextInput } from "@mantine/cor
 import React, { useEffect, useState } from "react";
 import { useForm } from '@mantine/form';
 import { usePostUserMutation, useUpdateUserMutation } from "@/redux/services/user";
-import { User } from "@/types/users";
+import { UpdateUserBody, User } from "@/types/users";
+import { AuthUser } from "@/types/auth";
 
 interface CreateOrUodateDataInterFace {
   editData: User | null | undefined;
   // eslint-disable-next-line @typescript-eslint/ban-types
   setEditData: Function;
   // eslint-disable-next-line @typescript-eslint/ban-types
-  refetch: Function;
+  refetch: ()=>void;
+  authUser: AuthUser;
 }
 
-const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, refetch }) => {
+const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, refetch, authUser }) => {
   const [open, setOpen] = useState(false);
+
   useEffect(() => {
     if (editData) setOpen(true);
   }, [editData]);
@@ -24,9 +27,9 @@ const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, s
   }
   return (
     <>
-      <Modal opened={open} onClose={handleModalClose} title="Authentication" centered>
+      <Modal opened={open} onClose={handleModalClose} title="User" centered>
         {/* Modal content */}
-        <Form editData={editData} refetch={refetch} handleModalClose={handleModalClose} />
+        <Form editData={editData} handleModalClose={handleModalClose} role={authUser?.role} />
       </Modal>
 
       <Group position="center" pr={20} >
@@ -38,11 +41,12 @@ const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, s
 
 interface FormInterface {
   editData: User | undefined | null;
-  // refetch: (user: User) => void;
-  handleModalClose: void;
+  // refetch: () => void;
+  handleModalClose: () => void;
+  role: string | undefined;
 }
 
-const Form: React.FC<FormInterface> = ({ editData, refetch, handleModalClose }) => {
+const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => {
   const [createUser] = usePostUserMutation()
   const [updateUser] = useUpdateUserMutation()
 
@@ -64,7 +68,6 @@ const Form: React.FC<FormInterface> = ({ editData, refetch, handleModalClose }) 
     },
   });
 
-  let role = "ADMIN"
   const super_admin_roles = ['ADMIN']
   const admin_roles = ['CASHIER', 'CUSTOMER', 'SUPPLIER', 'VENDOR']
   const cashier_roles = ['CUSTOMER', 'SUPPLIER', 'VENDOR']
@@ -79,7 +82,7 @@ const Form: React.FC<FormInterface> = ({ editData, refetch, handleModalClose }) 
   }, []);
 
   console.log({ form: form.values })
-  const handleFormSubmit = async (values: User) => {
+  const handleFormSubmit = async (values: UpdateUserBody): Promise<void> => {
     console.log({ values })
     try {
       if (editData) {
@@ -93,7 +96,7 @@ const Form: React.FC<FormInterface> = ({ editData, refetch, handleModalClose }) 
         if (!error?.data) throw new Error(error.message);
       }
 
-      refetch();
+      // refetch();
       handleModalClose();
     } catch (err) {
 
@@ -104,7 +107,7 @@ const Form: React.FC<FormInterface> = ({ editData, refetch, handleModalClose }) 
 
   return (
     <Box maw={500} mx="auto" px={40}>
-      <form onSubmit={form.onSubmit(handleFormSubmit)}>
+      <form onSubmit={form.onSubmit((values:UpdateUserBody):object => handleFormSubmit(values))}>
 
         <Grid grow gutter="xs">
           <Grid.Col span={4}>

@@ -9,7 +9,11 @@ export interface User {
   role: string;
 }
 
-interface UpdateUserBody {
+export interface GetAllUsersInterface{
+  users: User[] | []
+}
+
+export interface UpdateUserBody {
   username?: string;
   first_name?: string;
   last_name?: string;
@@ -18,6 +22,6 @@ interface UpdateUserBody {
   role?: string;
 }
 export interface UpdateUser {
-  user_id: number | string;
+  user_id: number ;
   body: UpdateUserBody;
 }

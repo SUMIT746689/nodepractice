@@ -5,20 +5,24 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const authApi = createApi({
   reducerPath: 'authApi',
+  tagTypes: ['Auth'],
   baseQuery: fetchBaseQuery({ baseUrl: API_KEY }),
   endpoints: (builder) => ({
     loginUser: builder.mutation<AuthLogIn, string>({
       query: (body) => ({
         url: 'login',
         method: 'POST',
-        body,
-      })
+        body
+      }),
+      // invalidatesTags:["Auth"]
     }),
     authUser: builder.query({
       query: () => ({
-        url:'me',
-        credentials:'include'
+        url: 'me',
+        credentials: 'include',
       }),
+      transformResponse: (response: { user: AuthUser }) => response.user,
+      providesTags: ['Auth']
     }),
   }),
 

@@ -1,5 +1,5 @@
 import { API_KEY } from '@/secret';
-import { UpdateUser, User } from '@/types/users'
+import { GetAllUsersInterface, UpdateUser, User } from '@/types/users'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 // import axios from "axios"
 
@@ -32,43 +32,36 @@ export const userApi = createApi({
   endpoints: (builder) => ({
     getAllUsers: builder.query({
       query: () => ("/users"),
-        // providesTags: ['Users'],
-        // transformResponse: (response, meta, arg) => {
-        //   console.log({ a: response })
-        //   return 'hi'
-        // },
-        // // Pick out errors and prevent nested properties in a hook or selector
-        // transformErrorResponse: (response, meta, arg) => {
-        //   console.log({ response })
-        //   return "errrr..."
-        //   // return response.status
-        // },
-      // }),
-      providesTags: ['Users'],
+      transformResponse: (response: GetAllUsersInterface) => response.users,
+      providesTags: [{ type: "Users", id: "LIST" }],
     }),
     postUser: builder.mutation<User, string>({
       query: (body) => ({
         url: '/users',
         method: 'POST',
-        body
+        body,
+        // headers: { "Content-Type": "text/plain" }
       }),
-      invalidatesTags: ['Users'],
+      invalidatesTags: [{ type: "Users", id: "LIST" }],
       // transformResponse: (result: { data: { users: any } }) =>result.data.users)
     }),
 
-    updateUser: builder.mutation<UpdateUser, string>({
-      query: ({user_id,body}) => ({
-        url:  `/users/${JSON.stringify(user_id)}`,
+    updateUser: builder.mutation<User, UpdateUser>({
+      query: ({ user_id, body }) => ({
+        url: `/users/${JSON.stringify(user_id)}`,
         method: 'PATCH',
-        body
-      })
+        body,
+        // headers: { "Content-Type": "text/plain" }
+        // headers: { "Content-Type": "text/plain" }
+      }),
+      invalidatesTags: [{ type: "Users", id: "LIST" }],
     }),
-    deleteUser: builder.mutation<string, string>({
+    deleteUser: builder.mutation<User, number>({
       query: (user_id) => ({
-        url:  `/users/${JSON.stringify(user_id)}`,
+        url: `/users/${JSON.stringify(user_id)}`,
         method: 'DELETE'
       }),
-      invalidatesTags:['Users']
+      invalidatesTags: ['Users']
     }),
   }),
 

@@ -1,6 +1,7 @@
 
 import PaginationExampleWithPageSizeSelector from "@/components/DataTableWrapper";
 import CreateOrUpdateData from "@/content/users/CreateOrUodateData";
+import { useAuthUserQuery } from "@/redux/services/auth";
 import { useDeleteUserMutation, useGetAllUsersQuery } from "@/redux/services/user";
 import { User } from "@/types/users";
 import { ActionIcon, Group, Header, Text } from "@mantine/core";
@@ -12,6 +13,7 @@ export default function UserIndex() {
   // const { users: any } = useLoaderData();
 
   const {data:users,refetch}= useGetAllUsersQuery();
+  const {data:authUser}= useAuthUserQuery();
   console.log({users})
   const [deleteUser]= useDeleteUserMutation();
   // const {data:me,isLoading}= useAuthUserQuery();
@@ -20,12 +22,13 @@ export default function UserIndex() {
   const [editUser, setEditUser] = useState();
   console.log({ editUser })
 
-const  handleClick = ()=>{ 
+// const  handleClick = ()=>{ 
   // refetch();
-}
+// }
+
 const handleDelete = async(id:number)=>{
-  const {data,error} = await deleteUser(id);
-  console.log({data,error});
+  const {error} = await deleteUser(id);
+  console.log({error});
 }
   return (
     <>
@@ -34,7 +37,7 @@ const handleDelete = async(id:number)=>{
       <Header height={64} display="flex" sx={{ justifyContent: 'space-between' }}>
         <Text pt={18} pl={18} size={"lg"} weight={600} color="orange">Users</Text>
         {/* <Text pt={18} pl={18} size={"lg"} weight={600} color="orange">Users</Text> */}
-        <CreateOrUpdateData editData={editUser} setEditData={setEditUser} refetch={refetch} />
+        <CreateOrUpdateData editData={editUser} setEditData={setEditUser} refetch={refetch} authUser={authUser} />
       </Header>
         
         {/* <Button variant="gradient" gradient={{ from: 'orange', to: 'red' }}>Orange red</Button> */}
@@ -67,7 +70,7 @@ const handleDelete = async(id:number)=>{
               ),
             },
           ]}
-          datas={ users?.users || []}
+          datas={ users || []}
         />
       </div>
 
