@@ -74,6 +74,18 @@ func Login(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"token": t, "env": os.Getenv("APP_ENV")})
 }
 
+func Me(c *fiber.Ctx) error {
+	usr := c.Locals("user").(*jwt.Token)
+	claim := usr.Claims.(jwt.MapClaims)
+	identity := claim["identity"].(string)
+
+	user, err := pkg.EntClient().User.Query().Where(user.Username(identity)).Only(c.Context())
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(fiber.Map{"user": user})
+}
+
 type loginRequest struct {
 	Identity string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`

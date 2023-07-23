@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"log"
 	authcontroller "pos/cmd/api_server/controllers/auth_controller"
 	middleware "pos/cmd/api_server/middlewares"
 
@@ -15,10 +14,7 @@ func AuthRoutes() *fiber.App {
 	app.Post("/login", authcontroller.Login)
 
 	protected := app.Group("", middleware.Protected())
-	protected.Get("/me", func(c *fiber.Ctx) error {
-		log.Println("me..", c)
-		return nil
-	})
+	protected.Get("/me", authcontroller.Me)
 	protected.Post("/logout", func(c *fiber.Ctx) error {
 		return nil
 	})
