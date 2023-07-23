@@ -8,15 +8,16 @@ export const authApi = createApi({
   tagTypes: ['Auth'],
   baseQuery: fetchBaseQuery({ baseUrl: API_KEY }),
   endpoints: (builder) => ({
-    loginUser: builder.mutation<AuthLogIn, string>({
+    loginUser: builder.mutation<AuthLogIn, {username:string,password:string}>({
       query: (body) => ({
         url: 'login',
         method: 'POST',
         body
       }),
+      transformErrorResponse:(baseQueryReturnValue)=>baseQueryReturnValue.data || 'Failed to Login',
       // invalidatesTags:["Auth"]
     }),
-    authUser: builder.query({
+    authUser: builder.query<AuthUser,void>({
       query: () => ({
         url: 'me',
         credentials: 'include',

@@ -1,7 +1,7 @@
 
 export interface AuthLogIn {
-  username: string;
-  password: string;
+  env: string;
+  token: string;
 }
 
 export interface AuthUser {

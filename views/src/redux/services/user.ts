@@ -30,7 +30,7 @@ export const userApi = createApi({
   }),
   // refetchOnReconnect: true,
   endpoints: (builder) => ({
-    getAllUsers: builder.query({
+    getAllUsers: builder.query<User[],void>({
       query: () => ("/users"),
       transformResponse: (response: GetAllUsersInterface) => response.users,
       providesTags: [{ type: "Users", id: "LIST" }],
@@ -51,15 +51,15 @@ export const userApi = createApi({
         url: `/users/${JSON.stringify(user_id)}`,
         method: 'PATCH',
         body,
-        // headers: { "Content-Type": "text/plain" }
-        // headers: { "Content-Type": "text/plain" }
+        responseHandler:(response)=> response.text(),
       }),
       invalidatesTags: [{ type: "Users", id: "LIST" }],
     }),
     deleteUser: builder.mutation<User, number>({
       query: (user_id) => ({
         url: `/users/${JSON.stringify(user_id)}`,
-        method: 'DELETE'
+        method: 'DELETE',
+        responseHandler: (response) =>  response.text(),
       }),
       invalidatesTags: ['Users']
     }),

@@ -4,17 +4,19 @@ import { useForm } from '@mantine/form';
 import { usePostUserMutation, useUpdateUserMutation } from "@/redux/services/user";
 import { UpdateUserBody, User } from "@/types/users";
 import { AuthUser } from "@/types/auth";
+import { notifications } from "@mantine/notifications";
+import { CatchError } from "@/types/error";
 
 interface CreateOrUodateDataInterFace {
   editData: User | null | undefined;
   // eslint-disable-next-line @typescript-eslint/ban-types
   setEditData: Function;
   // eslint-disable-next-line @typescript-eslint/ban-types
-  refetch: ()=>void;
-  authUser: AuthUser;
+  // refetch: ()=>void;
+  authUser: AuthUser | undefined;
 }
 
-const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, refetch, authUser }) => {
+const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, authUser }) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -88,19 +90,24 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
       if (editData) {
         const { data: ud, error } = await updateUser({ user_id: editData.id, body: values });
         console.log({ ud, error });
-        if (!error?.data) throw new Error(error.message);
+        // if (!error?.data) throw new Error(error.message);
+        if (error) throw new Error(error.data);
+        notifications.show({ message: 'Sucessfully Updated' });
+
       }
       else {
         const { data: cd, error } = await createUser(values);
         console.log({ data: cd, error })
-        if (!error?.data) throw new Error(error.message);
+        // if (!error?.data) throw new Error(error.message);
+        if (error) throw new Error(error.data);
+        notifications.show({ message: 'Sucessfully Created' });
       }
 
       // refetch();
       handleModalClose();
     } catch (err) {
-
       console.log({ err });
+      notifications.show({ message: err.message,color:'red'});
     }
 
   }

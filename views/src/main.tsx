@@ -2,7 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import './index.css'
 import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom'
-import Login, { LoginRouteAction } from './routes/login.tsx'
+import Login from './routes/login.tsx'
+// import { LoginRouteAction } from './routes/login.tsx'
 import { isLoggedIn } from './lib/auth.ts'
 import Layout, { LayoutRouteAction } from './content/layout/Layout.tsx'
 import Dashboard from './routes/dashboard.tsx'
@@ -49,7 +50,7 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
-    action: LoginRouteAction,
+    // action: LoginRouteAction,
   }
 ])
 
