@@ -9,6 +9,7 @@ import (
 	"pos/ent/permission"
 	"pos/ent/role"
 	"pos/ent/user"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -21,9 +22,43 @@ type RoleCreate struct {
 	hooks    []Hook
 }
 
+// SetCreateTime sets the "create_time" field.
+func (rc *RoleCreate) SetCreateTime(t time.Time) *RoleCreate {
+	rc.mutation.SetCreateTime(t)
+	return rc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableCreateTime(t *time.Time) *RoleCreate {
+	if t != nil {
+		rc.SetCreateTime(*t)
+	}
+	return rc
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (rc *RoleCreate) SetUpdateTime(t time.Time) *RoleCreate {
+	rc.mutation.SetUpdateTime(t)
+	return rc
+}
+
+// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableUpdateTime(t *time.Time) *RoleCreate {
+	if t != nil {
+		rc.SetUpdateTime(*t)
+	}
+	return rc
+}
+
 // SetTitle sets the "title" field.
 func (rc *RoleCreate) SetTitle(s string) *RoleCreate {
 	rc.mutation.SetTitle(s)
+	return rc
+}
+
+// SetValue sets the "value" field.
+func (rc *RoleCreate) SetValue(s string) *RoleCreate {
+	rc.mutation.SetValue(s)
 	return rc
 }
 
@@ -64,6 +99,7 @@ func (rc *RoleCreate) Mutation() *RoleMutation {
 
 // Save creates the Role in the database.
 func (rc *RoleCreate) Save(ctx context.Context) (*Role, error) {
+	rc.defaults()
 	return withHooks(ctx, rc.sqlSave, rc.mutation, rc.hooks)
 }
 
@@ -89,14 +125,40 @@ func (rc *RoleCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (rc *RoleCreate) defaults() {
+	if _, ok := rc.mutation.CreateTime(); !ok {
+		v := role.DefaultCreateTime()
+		rc.mutation.SetCreateTime(v)
+	}
+	if _, ok := rc.mutation.UpdateTime(); !ok {
+		v := role.DefaultUpdateTime()
+		rc.mutation.SetUpdateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (rc *RoleCreate) check() error {
+	if _, ok := rc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Role.create_time"`)}
+	}
+	if _, ok := rc.mutation.UpdateTime(); !ok {
+		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "Role.update_time"`)}
+	}
 	if _, ok := rc.mutation.Title(); !ok {
 		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Role.title"`)}
 	}
 	if v, ok := rc.mutation.Title(); ok {
 		if err := role.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Role.title": %w`, err)}
+		}
+	}
+	if _, ok := rc.mutation.Value(); !ok {
+		return &ValidationError{Name: "value", err: errors.New(`ent: missing required field "Role.value"`)}
+	}
+	if v, ok := rc.mutation.Value(); ok {
+		if err := role.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "Role.value": %w`, err)}
 		}
 	}
 	return nil
@@ -125,9 +187,21 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_node = &Role{config: rc.config}
 		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
 	)
+	if value, ok := rc.mutation.CreateTime(); ok {
+		_spec.SetField(role.FieldCreateTime, field.TypeTime, value)
+		_node.CreateTime = value
+	}
+	if value, ok := rc.mutation.UpdateTime(); ok {
+		_spec.SetField(role.FieldUpdateTime, field.TypeTime, value)
+		_node.UpdateTime = value
+	}
 	if value, ok := rc.mutation.Title(); ok {
 		_spec.SetField(role.FieldTitle, field.TypeString, value)
 		_node.Title = value
+	}
+	if value, ok := rc.mutation.Value(); ok {
+		_spec.SetField(role.FieldValue, field.TypeString, value)
+		_node.Value = value
 	}
 	if nodes := rc.mutation.PermissionsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -178,6 +252,7 @@ func (rcb *RoleCreateBulk) Save(ctx context.Context) ([]*Role, error) {
 	for i := range rcb.builders {
 		func(i int, root context.Context) {
 			builder := rcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*RoleMutation)
 				if !ok {

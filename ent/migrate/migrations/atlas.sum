@@ -1,6 +1,7 @@
-h1:GbeWWHFBJTMMi39sC/jVMA+7vjoam89eTSj0tbW6e6w=
+h1:O48yj4ayZfoWSLHZ08NhVsb9ADJbeKkHsOlC46C6K8A=
 20230716065542_init_db.sql h1:/EMIgQaJU0arRPa0MvNm8807b1FZQMQnL8amXa8Y7AE=
 20230717033051_exteded_user_attributes.sql h1:/ol1PgCM7tmXu1yEX69zxUeOQKYrWfcy6bzq8nvWJdE=
 20230717043700_make_username_unique.sql h1:1loJBjRn0wOuu3bgxXa//Cuhoiea0v1tnSr19HQfJZg=
 20230724081542_added_permission_and_role.sql h1:G0c8enkSoIPsrm4Pi7xXBlVZ3cDZU+nrjUH+/mtgVnM=
 20230724083100_added_user_to_role_link.sql h1:XcM0W0O/nZNNoTXjFpwK6IEBcIEdAvMj6YnCPi6pvJ8=
+20230724085253_add_column_to_role.sql h1:xq3f8FAlyCMQYGXUZuwOTQoZnhnXliLxktfl1tNIFbY=

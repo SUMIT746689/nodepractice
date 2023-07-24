@@ -28,12 +28,29 @@ func init() {
 	permissionDescGroup := permissionFields[2].Descriptor()
 	// permission.GroupValidator is a validator for the "group" field. It is called by the builders before save.
 	permission.GroupValidator = permissionDescGroup.Validators[0].(func(string) error)
+	roleMixin := schema.Role{}.Mixin()
+	roleMixinFields0 := roleMixin[0].Fields()
+	_ = roleMixinFields0
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
+	// roleDescCreateTime is the schema descriptor for create_time field.
+	roleDescCreateTime := roleMixinFields0[0].Descriptor()
+	// role.DefaultCreateTime holds the default value on creation for the create_time field.
+	role.DefaultCreateTime = roleDescCreateTime.Default.(func() time.Time)
+	// roleDescUpdateTime is the schema descriptor for update_time field.
+	roleDescUpdateTime := roleMixinFields0[1].Descriptor()
+	// role.DefaultUpdateTime holds the default value on creation for the update_time field.
+	role.DefaultUpdateTime = roleDescUpdateTime.Default.(func() time.Time)
+	// role.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	role.UpdateDefaultUpdateTime = roleDescUpdateTime.UpdateDefault.(func() time.Time)
 	// roleDescTitle is the schema descriptor for title field.
 	roleDescTitle := roleFields[0].Descriptor()
 	// role.TitleValidator is a validator for the "title" field. It is called by the builders before save.
 	role.TitleValidator = roleDescTitle.Validators[0].(func(string) error)
+	// roleDescValue is the schema descriptor for value field.
+	roleDescValue := roleFields[1].Descriptor()
+	// role.ValueValidator is a validator for the "value" field. It is called by the builders before save.
+	role.ValueValidator = roleDescValue.Validators[0].(func(string) error)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

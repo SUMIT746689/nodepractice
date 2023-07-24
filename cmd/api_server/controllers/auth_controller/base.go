@@ -91,3 +91,21 @@ type loginRequest struct {
 	Identity string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
+
+func CreateRole(c *fiber.Ctx) error {
+	type CreateRoleRequest struct {
+		Title string `json:"title" validate:"required"`
+	}
+	req := new(CreateRoleRequest)
+	err := pkg.BindNValidate(c, req)
+	if err != nil {
+		return c.SendStatus(fiber.StatusUnprocessableEntity)
+	}
+
+	_role, err := pkg.EntClient().Role.Create().SetTitle(req.Title).Save(c.Context())
+	if err != nil {
+		return c.SendStatus(fiber.StatusUnprocessableEntity)
+	}
+
+	return c.JSON(_role)
+}

@@ -10,6 +10,7 @@ import (
 	"pos/ent/predicate"
 	"pos/ent/role"
 	"pos/ent/user"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -29,9 +30,21 @@ func (ru *RoleUpdate) Where(ps ...predicate.Role) *RoleUpdate {
 	return ru
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (ru *RoleUpdate) SetUpdateTime(t time.Time) *RoleUpdate {
+	ru.mutation.SetUpdateTime(t)
+	return ru
+}
+
 // SetTitle sets the "title" field.
 func (ru *RoleUpdate) SetTitle(s string) *RoleUpdate {
 	ru.mutation.SetTitle(s)
+	return ru
+}
+
+// SetValue sets the "value" field.
+func (ru *RoleUpdate) SetValue(s string) *RoleUpdate {
+	ru.mutation.SetValue(s)
 	return ru
 }
 
@@ -114,6 +127,7 @@ func (ru *RoleUpdate) RemoveUsers(u ...*User) *RoleUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (ru *RoleUpdate) Save(ctx context.Context) (int, error) {
+	ru.defaults()
 	return withHooks(ctx, ru.sqlSave, ru.mutation, ru.hooks)
 }
 
@@ -139,11 +153,24 @@ func (ru *RoleUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ru *RoleUpdate) defaults() {
+	if _, ok := ru.mutation.UpdateTime(); !ok {
+		v := role.UpdateDefaultUpdateTime()
+		ru.mutation.SetUpdateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ru *RoleUpdate) check() error {
 	if v, ok := ru.mutation.Title(); ok {
 		if err := role.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Role.title": %w`, err)}
+		}
+	}
+	if v, ok := ru.mutation.Value(); ok {
+		if err := role.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "Role.value": %w`, err)}
 		}
 	}
 	return nil
@@ -161,8 +188,14 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := ru.mutation.UpdateTime(); ok {
+		_spec.SetField(role.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := ru.mutation.Title(); ok {
 		_spec.SetField(role.FieldTitle, field.TypeString, value)
+	}
+	if value, ok := ru.mutation.Value(); ok {
+		_spec.SetField(role.FieldValue, field.TypeString, value)
 	}
 	if ru.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -274,9 +307,21 @@ type RoleUpdateOne struct {
 	mutation *RoleMutation
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (ruo *RoleUpdateOne) SetUpdateTime(t time.Time) *RoleUpdateOne {
+	ruo.mutation.SetUpdateTime(t)
+	return ruo
+}
+
 // SetTitle sets the "title" field.
 func (ruo *RoleUpdateOne) SetTitle(s string) *RoleUpdateOne {
 	ruo.mutation.SetTitle(s)
+	return ruo
+}
+
+// SetValue sets the "value" field.
+func (ruo *RoleUpdateOne) SetValue(s string) *RoleUpdateOne {
+	ruo.mutation.SetValue(s)
 	return ruo
 }
 
@@ -372,6 +417,7 @@ func (ruo *RoleUpdateOne) Select(field string, fields ...string) *RoleUpdateOne 
 
 // Save executes the query and returns the updated Role entity.
 func (ruo *RoleUpdateOne) Save(ctx context.Context) (*Role, error) {
+	ruo.defaults()
 	return withHooks(ctx, ruo.sqlSave, ruo.mutation, ruo.hooks)
 }
 
@@ -397,11 +443,24 @@ func (ruo *RoleUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (ruo *RoleUpdateOne) defaults() {
+	if _, ok := ruo.mutation.UpdateTime(); !ok {
+		v := role.UpdateDefaultUpdateTime()
+		ruo.mutation.SetUpdateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (ruo *RoleUpdateOne) check() error {
 	if v, ok := ruo.mutation.Title(); ok {
 		if err := role.TitleValidator(v); err != nil {
 			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Role.title": %w`, err)}
+		}
+	}
+	if v, ok := ruo.mutation.Value(); ok {
+		if err := role.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "Role.value": %w`, err)}
 		}
 	}
 	return nil
@@ -436,8 +495,14 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 			}
 		}
 	}
+	if value, ok := ruo.mutation.UpdateTime(); ok {
+		_spec.SetField(role.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := ruo.mutation.Title(); ok {
 		_spec.SetField(role.FieldTitle, field.TypeString, value)
+	}
+	if value, ok := ruo.mutation.Value(); ok {
+		_spec.SetField(role.FieldValue, field.TypeString, value)
 	}
 	if ruo.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
