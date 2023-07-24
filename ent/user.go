@@ -33,9 +33,32 @@ type User struct {
 	PhoneNumber string `json:"phone_number,omitempty"`
 	// Email holds the value of the "email" field.
 	Email string `json:"email,omitempty"`
-	// Role holds the value of the "role" field.
-	Role         user.Role `json:"role,omitempty"`
+	// RoleID holds the value of the "role_id" field.
+	RoleID int `json:"role_id,omitempty"`
+	// HasPermission holds the value of the "has_permission" field.
+	HasPermission user.HasPermission `json:"has_permission,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Permissions holds the value of the permissions edge.
+	Permissions []*Permission `json:"permissions,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// PermissionsOrErr returns the Permissions value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) PermissionsOrErr() ([]*Permission, error) {
+	if e.loadedTypes[0] {
+		return e.Permissions, nil
+	}
+	return nil, &NotLoadedError{edge: "permissions"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -43,9 +66,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case user.FieldID:
+		case user.FieldID, user.FieldRoleID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldFirstName, user.FieldLastName, user.FieldUsername, user.FieldPassword, user.FieldPhoneNumber, user.FieldEmail, user.FieldRole:
+		case user.FieldFirstName, user.FieldLastName, user.FieldUsername, user.FieldPassword, user.FieldPhoneNumber, user.FieldEmail, user.FieldHasPermission:
 			values[i] = new(sql.NullString)
 		case user.FieldCreateTime, user.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
@@ -118,11 +141,17 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Email = value.String
 			}
-		case user.FieldRole:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field role", values[i])
+		case user.FieldRoleID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field role_id", values[i])
 			} else if value.Valid {
-				u.Role = user.Role(value.String)
+				u.RoleID = int(value.Int64)
+			}
+		case user.FieldHasPermission:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field has_permission", values[i])
+			} else if value.Valid {
+				u.HasPermission = user.HasPermission(value.String)
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -135,6 +164,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
+}
+
+// QueryPermissions queries the "permissions" edge of the User entity.
+func (u *User) QueryPermissions() *PermissionQuery {
+	return NewUserClient(u.config).QueryPermissions(u)
 }
 
 // Update returns a builder for updating this User.
@@ -183,8 +217,11 @@ func (u *User) String() string {
 	builder.WriteString("email=")
 	builder.WriteString(u.Email)
 	builder.WriteString(", ")
-	builder.WriteString("role=")
-	builder.WriteString(fmt.Sprintf("%v", u.Role))
+	builder.WriteString("role_id=")
+	builder.WriteString(fmt.Sprintf("%v", u.RoleID))
+	builder.WriteString(", ")
+	builder.WriteString("has_permission=")
+	builder.WriteString(fmt.Sprintf("%v", u.HasPermission))
 	builder.WriteByte(')')
 	return builder.String()
 }

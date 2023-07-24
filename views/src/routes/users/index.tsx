@@ -31,7 +31,7 @@ export default function UserIndex() {
   const handleDelete = async (id: number): Promise<void> => {
 
     try {
-      const { data = undefined }: { data: User | undefined } = await deleteUser(id).unwrap()
+      const { data } = await deleteUser(id).unwrap()
       if (data) notifications.show({ message: "sucessfully deleted" })
     } catch (err) {
       if (isFetchBaseQueryError(err)) {
