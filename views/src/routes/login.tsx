@@ -24,7 +24,7 @@ export default function Login() {
 
     const target = event.target as FormElements;
     const username = target["username"]?.value;
-    const password = target["username"]?.value;
+    const password = target["password"]?.value;
 
     loginUser({ username, password }).unwrap().then((data) => {
       console.log({ data });
