@@ -1,11 +1,10 @@
-import { Box, Button, Grid, Group, Modal, Select, TextInput } from "@mantine/core";
+import { Box, Button, Grid, Group, LoadingOverlay, Modal, Select, TextInput } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from '@mantine/form';
 import { usePostUserMutation, useUpdateUserMutation } from "@/redux/services/user";
 import { UpdateUserBody, User } from "@/types/users";
 import { AuthUser } from "@/types/auth";
 import { notifications } from "@mantine/notifications";
-import { CatchError } from "@/types/error";
 
 interface CreateOrUodateDataInterFace {
   editData: User | null | undefined;
@@ -49,8 +48,8 @@ interface FormInterface {
 }
 
 const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => {
-  const [createUser] = usePostUserMutation()
-  const [updateUser] = useUpdateUserMutation()
+  const [createUser, { isLoading: isCreateLoading }] = usePostUserMutation()
+  const [updateUser, { isLoading: isUpdateLoading }] = useUpdateUserMutation()
 
 
   const form = useForm({
@@ -83,7 +82,6 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  console.log({ form: form.values })
   const handleFormSubmit = async (values: UpdateUserBody): Promise<void> => {
     console.log({ values })
     try {
@@ -107,14 +105,15 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
       handleModalClose();
     } catch (err) {
       console.log({ err });
-      notifications.show({ message: err.message,color:'red'});
+      notifications.show({ message: err.message, color: 'red' });
     }
 
   }
 
   return (
-    <Box maw={500} mx="auto" px={40}>
-      <form onSubmit={form.onSubmit((values:UpdateUserBody):object => handleFormSubmit(values))}>
+    <Box maw={500} mx="auto" pos="relative" px={40}>
+      <LoadingOverlay visible={isCreateLoading || isUpdateLoading} overlayBlur={2} />
+      <form onSubmit={form.onSubmit((values: UpdateUserBody): object => handleFormSubmit(values))} >
 
         <Grid grow gutter="xs">
           <Grid.Col span={4}>

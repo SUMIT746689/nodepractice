@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"pos/ent/permission"
 	"pos/ent/user"
 	"time"
 
@@ -100,10 +101,39 @@ func (uc *UserCreate) SetNillableEmail(s *string) *UserCreate {
 	return uc
 }
 
-// SetRole sets the "role" field.
-func (uc *UserCreate) SetRole(u user.Role) *UserCreate {
-	uc.mutation.SetRole(u)
+// SetRoleID sets the "role_id" field.
+func (uc *UserCreate) SetRoleID(i int) *UserCreate {
+	uc.mutation.SetRoleID(i)
 	return uc
+}
+
+// SetHasPermission sets the "has_permission" field.
+func (uc *UserCreate) SetHasPermission(up user.HasPermission) *UserCreate {
+	uc.mutation.SetHasPermission(up)
+	return uc
+}
+
+// SetNillableHasPermission sets the "has_permission" field if the given value is not nil.
+func (uc *UserCreate) SetNillableHasPermission(up *user.HasPermission) *UserCreate {
+	if up != nil {
+		uc.SetHasPermission(*up)
+	}
+	return uc
+}
+
+// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
+func (uc *UserCreate) AddPermissionIDs(ids ...int) *UserCreate {
+	uc.mutation.AddPermissionIDs(ids...)
+	return uc
+}
+
+// AddPermissions adds the "permissions" edges to the Permission entity.
+func (uc *UserCreate) AddPermissions(p ...*Permission) *UserCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uc.AddPermissionIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -149,6 +179,10 @@ func (uc *UserCreate) defaults() {
 		v := user.DefaultUpdateTime()
 		uc.mutation.SetUpdateTime(v)
 	}
+	if _, ok := uc.mutation.HasPermission(); !ok {
+		v := user.DefaultHasPermission
+		uc.mutation.SetHasPermission(v)
+	}
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -186,12 +220,15 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.Password(); !ok {
 		return &ValidationError{Name: "password", err: errors.New(`ent: missing required field "User.password"`)}
 	}
-	if _, ok := uc.mutation.Role(); !ok {
-		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "User.role"`)}
+	if _, ok := uc.mutation.RoleID(); !ok {
+		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "User.role_id"`)}
 	}
-	if v, ok := uc.mutation.Role(); ok {
-		if err := user.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+	if _, ok := uc.mutation.HasPermission(); !ok {
+		return &ValidationError{Name: "has_permission", err: errors.New(`ent: missing required field "User.has_permission"`)}
+	}
+	if v, ok := uc.mutation.HasPermission(); ok {
+		if err := user.HasPermissionValidator(v); err != nil {
+			return &ValidationError{Name: "has_permission", err: fmt.Errorf(`ent: validator failed for field "User.has_permission": %w`, err)}
 		}
 	}
 	return nil
@@ -252,9 +289,29 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 		_node.Email = value
 	}
-	if value, ok := uc.mutation.Role(); ok {
-		_spec.SetField(user.FieldRole, field.TypeEnum, value)
-		_node.Role = value
+	if value, ok := uc.mutation.RoleID(); ok {
+		_spec.SetField(user.FieldRoleID, field.TypeInt, value)
+		_node.RoleID = value
+	}
+	if value, ok := uc.mutation.HasPermission(); ok {
+		_spec.SetField(user.FieldHasPermission, field.TypeEnum, value)
+		_node.HasPermission = value
+	}
+	if nodes := uc.mutation.PermissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.PermissionsTable,
+			Columns: user.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

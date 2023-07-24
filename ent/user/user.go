@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -30,10 +31,19 @@ const (
 	FieldPhoneNumber = "phone_number"
 	// FieldEmail holds the string denoting the email field in the database.
 	FieldEmail = "email"
-	// FieldRole holds the string denoting the role field in the database.
-	FieldRole = "role"
+	// FieldRoleID holds the string denoting the role_id field in the database.
+	FieldRoleID = "role_id"
+	// FieldHasPermission holds the string denoting the has_permission field in the database.
+	FieldHasPermission = "has_permission"
+	// EdgePermissions holds the string denoting the permissions edge name in mutations.
+	EdgePermissions = "permissions"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// PermissionsTable is the table that holds the permissions relation/edge. The primary key declared below.
+	PermissionsTable = "user_permissions"
+	// PermissionsInverseTable is the table name for the Permission entity.
+	// It exists in this package in order to avoid circular dependency with the "permission" package.
+	PermissionsInverseTable = "permissions"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -47,8 +57,15 @@ var Columns = []string{
 	FieldPassword,
 	FieldPhoneNumber,
 	FieldEmail,
-	FieldRole,
+	FieldRoleID,
+	FieldHasPermission,
 }
+
+var (
+	// PermissionsPrimaryKey and PermissionsColumn2 are the table columns denoting the
+	// primary key for the permissions relation (M2M).
+	PermissionsPrimaryKey = []string{"user_id", "permission_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -75,28 +92,30 @@ var (
 	UsernameValidator func(string) error
 )
 
-// Role defines the type for the "role" enum field.
-type Role string
+// HasPermission defines the type for the "has_permission" enum field.
+type HasPermission string
 
-// Role values.
+// HasPermissionNULL is the default value of the HasPermission enum.
+const DefaultHasPermission = HasPermissionNULL
+
+// HasPermission values.
 const (
-	RoleSUPERADMIN Role = "SUPERADMIN"
-	RoleADMIN      Role = "ADMIN"
-	RoleCASHIER    Role = "CASHIER"
-	RoleCUSTOMER   Role = "CUSTOMER"
+	HasPermissionNULL HasPermission = "NULL"
+	HasPermissionROLE HasPermission = "ROLE"
+	HasPermissionUSER HasPermission = "USER"
 )
 
-func (r Role) String() string {
-	return string(r)
+func (hp HasPermission) String() string {
+	return string(hp)
 }
 
-// RoleValidator is a validator for the "role" field enum values. It is called by the builders before save.
-func RoleValidator(r Role) error {
-	switch r {
-	case RoleSUPERADMIN, RoleADMIN, RoleCASHIER, RoleCUSTOMER:
+// HasPermissionValidator is a validator for the "has_permission" field enum values. It is called by the builders before save.
+func HasPermissionValidator(hp HasPermission) error {
+	switch hp {
+	case HasPermissionNULL, HasPermissionROLE, HasPermissionUSER:
 		return nil
 	default:
-		return fmt.Errorf("user: invalid enum value for role field: %q", r)
+		return fmt.Errorf("user: invalid enum value for has_permission field: %q", hp)
 	}
 }
 
@@ -148,7 +167,33 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
-// ByRole orders the results by the role field.
-func ByRole(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRole, opts...).ToFunc()
+// ByRoleID orders the results by the role_id field.
+func ByRoleID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRoleID, opts...).ToFunc()
+}
+
+// ByHasPermission orders the results by the has_permission field.
+func ByHasPermission(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHasPermission, opts...).ToFunc()
+}
+
+// ByPermissionsCount orders the results by permissions count.
+func ByPermissionsCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newPermissionsStep(), opts...)
+	}
+}
+
+// ByPermissions orders the results by permissions terms.
+func ByPermissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newPermissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newPermissionsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(PermissionsInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
+	)
 }

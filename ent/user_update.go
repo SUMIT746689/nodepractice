@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"pos/ent/permission"
 	"pos/ent/predicate"
 	"pos/ent/user"
 	"time"
@@ -98,15 +99,72 @@ func (uu *UserUpdate) ClearEmail() *UserUpdate {
 	return uu
 }
 
-// SetRole sets the "role" field.
-func (uu *UserUpdate) SetRole(u user.Role) *UserUpdate {
-	uu.mutation.SetRole(u)
+// SetRoleID sets the "role_id" field.
+func (uu *UserUpdate) SetRoleID(i int) *UserUpdate {
+	uu.mutation.ResetRoleID()
+	uu.mutation.SetRoleID(i)
 	return uu
+}
+
+// AddRoleID adds i to the "role_id" field.
+func (uu *UserUpdate) AddRoleID(i int) *UserUpdate {
+	uu.mutation.AddRoleID(i)
+	return uu
+}
+
+// SetHasPermission sets the "has_permission" field.
+func (uu *UserUpdate) SetHasPermission(up user.HasPermission) *UserUpdate {
+	uu.mutation.SetHasPermission(up)
+	return uu
+}
+
+// SetNillableHasPermission sets the "has_permission" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableHasPermission(up *user.HasPermission) *UserUpdate {
+	if up != nil {
+		uu.SetHasPermission(*up)
+	}
+	return uu
+}
+
+// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
+func (uu *UserUpdate) AddPermissionIDs(ids ...int) *UserUpdate {
+	uu.mutation.AddPermissionIDs(ids...)
+	return uu
+}
+
+// AddPermissions adds the "permissions" edges to the Permission entity.
+func (uu *UserUpdate) AddPermissions(p ...*Permission) *UserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.AddPermissionIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearPermissions clears all "permissions" edges to the Permission entity.
+func (uu *UserUpdate) ClearPermissions() *UserUpdate {
+	uu.mutation.ClearPermissions()
+	return uu
+}
+
+// RemovePermissionIDs removes the "permissions" edge to Permission entities by IDs.
+func (uu *UserUpdate) RemovePermissionIDs(ids ...int) *UserUpdate {
+	uu.mutation.RemovePermissionIDs(ids...)
+	return uu
+}
+
+// RemovePermissions removes "permissions" edges to Permission entities.
+func (uu *UserUpdate) RemovePermissions(p ...*Permission) *UserUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uu.RemovePermissionIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -162,9 +220,9 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if v, ok := uu.mutation.Role(); ok {
-		if err := user.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+	if v, ok := uu.mutation.HasPermission(); ok {
+		if err := user.HasPermissionValidator(v); err != nil {
+			return &ValidationError{Name: "has_permission", err: fmt.Errorf(`ent: validator failed for field "User.has_permission": %w`, err)}
 		}
 	}
 	return nil
@@ -209,8 +267,59 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if uu.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uu.mutation.Role(); ok {
-		_spec.SetField(user.FieldRole, field.TypeEnum, value)
+	if value, ok := uu.mutation.RoleID(); ok {
+		_spec.SetField(user.FieldRoleID, field.TypeInt, value)
+	}
+	if value, ok := uu.mutation.AddedRoleID(); ok {
+		_spec.AddField(user.FieldRoleID, field.TypeInt, value)
+	}
+	if value, ok := uu.mutation.HasPermission(); ok {
+		_spec.SetField(user.FieldHasPermission, field.TypeEnum, value)
+	}
+	if uu.mutation.PermissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.PermissionsTable,
+			Columns: user.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !uu.mutation.PermissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.PermissionsTable,
+			Columns: user.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.PermissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.PermissionsTable,
+			Columns: user.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -302,15 +411,72 @@ func (uuo *UserUpdateOne) ClearEmail() *UserUpdateOne {
 	return uuo
 }
 
-// SetRole sets the "role" field.
-func (uuo *UserUpdateOne) SetRole(u user.Role) *UserUpdateOne {
-	uuo.mutation.SetRole(u)
+// SetRoleID sets the "role_id" field.
+func (uuo *UserUpdateOne) SetRoleID(i int) *UserUpdateOne {
+	uuo.mutation.ResetRoleID()
+	uuo.mutation.SetRoleID(i)
 	return uuo
+}
+
+// AddRoleID adds i to the "role_id" field.
+func (uuo *UserUpdateOne) AddRoleID(i int) *UserUpdateOne {
+	uuo.mutation.AddRoleID(i)
+	return uuo
+}
+
+// SetHasPermission sets the "has_permission" field.
+func (uuo *UserUpdateOne) SetHasPermission(up user.HasPermission) *UserUpdateOne {
+	uuo.mutation.SetHasPermission(up)
+	return uuo
+}
+
+// SetNillableHasPermission sets the "has_permission" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableHasPermission(up *user.HasPermission) *UserUpdateOne {
+	if up != nil {
+		uuo.SetHasPermission(*up)
+	}
+	return uuo
+}
+
+// AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
+func (uuo *UserUpdateOne) AddPermissionIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.AddPermissionIDs(ids...)
+	return uuo
+}
+
+// AddPermissions adds the "permissions" edges to the Permission entity.
+func (uuo *UserUpdateOne) AddPermissions(p ...*Permission) *UserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.AddPermissionIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearPermissions clears all "permissions" edges to the Permission entity.
+func (uuo *UserUpdateOne) ClearPermissions() *UserUpdateOne {
+	uuo.mutation.ClearPermissions()
+	return uuo
+}
+
+// RemovePermissionIDs removes the "permissions" edge to Permission entities by IDs.
+func (uuo *UserUpdateOne) RemovePermissionIDs(ids ...int) *UserUpdateOne {
+	uuo.mutation.RemovePermissionIDs(ids...)
+	return uuo
+}
+
+// RemovePermissions removes "permissions" edges to Permission entities.
+func (uuo *UserUpdateOne) RemovePermissions(p ...*Permission) *UserUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return uuo.RemovePermissionIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -379,9 +545,9 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if v, ok := uuo.mutation.Role(); ok {
-		if err := user.RoleValidator(v); err != nil {
-			return &ValidationError{Name: "role", err: fmt.Errorf(`ent: validator failed for field "User.role": %w`, err)}
+	if v, ok := uuo.mutation.HasPermission(); ok {
+		if err := user.HasPermissionValidator(v); err != nil {
+			return &ValidationError{Name: "has_permission", err: fmt.Errorf(`ent: validator failed for field "User.has_permission": %w`, err)}
 		}
 	}
 	return nil
@@ -443,8 +609,59 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if uuo.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uuo.mutation.Role(); ok {
-		_spec.SetField(user.FieldRole, field.TypeEnum, value)
+	if value, ok := uuo.mutation.RoleID(); ok {
+		_spec.SetField(user.FieldRoleID, field.TypeInt, value)
+	}
+	if value, ok := uuo.mutation.AddedRoleID(); ok {
+		_spec.AddField(user.FieldRoleID, field.TypeInt, value)
+	}
+	if value, ok := uuo.mutation.HasPermission(); ok {
+		_spec.SetField(user.FieldHasPermission, field.TypeEnum, value)
+	}
+	if uuo.mutation.PermissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.PermissionsTable,
+			Columns: user.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedPermissionsIDs(); len(nodes) > 0 && !uuo.mutation.PermissionsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.PermissionsTable,
+			Columns: user.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.PermissionsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.PermissionsTable,
+			Columns: user.PermissionsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

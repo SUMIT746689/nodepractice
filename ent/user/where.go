@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // ID filters vertices based on their ID field.
@@ -92,6 +93,11 @@ func PhoneNumber(v string) predicate.User {
 // Email applies equality check predicate on the "email" field. It's identical to EmailEQ.
 func Email(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldEmail, v))
+}
+
+// RoleID applies equality check predicate on the "role_id" field. It's identical to RoleIDEQ.
+func RoleID(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldRoleID, v))
 }
 
 // CreateTimeEQ applies the EQ predicate on the "create_time" field.
@@ -584,24 +590,87 @@ func EmailContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldEmail, v))
 }
 
-// RoleEQ applies the EQ predicate on the "role" field.
-func RoleEQ(v Role) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldRole, v))
+// RoleIDEQ applies the EQ predicate on the "role_id" field.
+func RoleIDEQ(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldRoleID, v))
 }
 
-// RoleNEQ applies the NEQ predicate on the "role" field.
-func RoleNEQ(v Role) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldRole, v))
+// RoleIDNEQ applies the NEQ predicate on the "role_id" field.
+func RoleIDNEQ(v int) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldRoleID, v))
 }
 
-// RoleIn applies the In predicate on the "role" field.
-func RoleIn(vs ...Role) predicate.User {
-	return predicate.User(sql.FieldIn(FieldRole, vs...))
+// RoleIDIn applies the In predicate on the "role_id" field.
+func RoleIDIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldIn(FieldRoleID, vs...))
 }
 
-// RoleNotIn applies the NotIn predicate on the "role" field.
-func RoleNotIn(vs ...Role) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldRole, vs...))
+// RoleIDNotIn applies the NotIn predicate on the "role_id" field.
+func RoleIDNotIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldRoleID, vs...))
+}
+
+// RoleIDGT applies the GT predicate on the "role_id" field.
+func RoleIDGT(v int) predicate.User {
+	return predicate.User(sql.FieldGT(FieldRoleID, v))
+}
+
+// RoleIDGTE applies the GTE predicate on the "role_id" field.
+func RoleIDGTE(v int) predicate.User {
+	return predicate.User(sql.FieldGTE(FieldRoleID, v))
+}
+
+// RoleIDLT applies the LT predicate on the "role_id" field.
+func RoleIDLT(v int) predicate.User {
+	return predicate.User(sql.FieldLT(FieldRoleID, v))
+}
+
+// RoleIDLTE applies the LTE predicate on the "role_id" field.
+func RoleIDLTE(v int) predicate.User {
+	return predicate.User(sql.FieldLTE(FieldRoleID, v))
+}
+
+// HasPermissionEQ applies the EQ predicate on the "has_permission" field.
+func HasPermissionEQ(v HasPermission) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldHasPermission, v))
+}
+
+// HasPermissionNEQ applies the NEQ predicate on the "has_permission" field.
+func HasPermissionNEQ(v HasPermission) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldHasPermission, v))
+}
+
+// HasPermissionIn applies the In predicate on the "has_permission" field.
+func HasPermissionIn(vs ...HasPermission) predicate.User {
+	return predicate.User(sql.FieldIn(FieldHasPermission, vs...))
+}
+
+// HasPermissionNotIn applies the NotIn predicate on the "has_permission" field.
+func HasPermissionNotIn(vs ...HasPermission) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldHasPermission, vs...))
+}
+
+// HasPermissions applies the HasEdge predicate on the "permissions" edge.
+func HasPermissions() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPermissionsWith applies the HasEdge predicate on the "permissions" edge with a given conditions (other predicates).
+func HasPermissionsWith(preds ...predicate.Permission) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newPermissionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

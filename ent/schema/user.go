@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 )
@@ -20,13 +21,18 @@ func (User) Fields() []ent.Field {
 		field.String("password").Sensitive(),
 		field.String("phone_number").Optional(),
 		field.String("email").Optional(),
-		field.Enum("role").Values("SUPERADMIN", "ADMIN", "CASHIER", "CUSTOMER"),
+		// field.Enum("role_id").Values("SUPERADMIN", "ADMIN", "CASHIER", "CUSTOMER"),
+		field.Int("role_id"),
+		field.Enum("has_permission").Values("NULL", "ROLE", "USER").Default("NULL"),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("permissions", Permission.Type),
+		// edge.To("roles", Role.Type).Field("role_id"),
+	}
 }
 
 func (User) Mixin() []ent.Mixin {
