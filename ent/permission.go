@@ -16,8 +16,12 @@ type Permission struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
+	// Title holds the value of the "title" field.
+	Title string `json:"title,omitempty"`
+	// Value holds the value of the "value" field.
+	Value string `json:"value,omitempty"`
+	// Group holds the value of the "group" field.
+	Group string `json:"group,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the PermissionQuery when eager-loading is set.
 	Edges        PermissionEdges `json:"edges"`
@@ -60,7 +64,7 @@ func (*Permission) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case permission.FieldID:
 			values[i] = new(sql.NullInt64)
-		case permission.FieldName:
+		case permission.FieldTitle, permission.FieldValue, permission.FieldGroup:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -83,11 +87,23 @@ func (pe *Permission) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			pe.ID = int(value.Int64)
-		case permission.FieldName:
+		case permission.FieldTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
+				return fmt.Errorf("unexpected type %T for field title", values[i])
 			} else if value.Valid {
-				pe.Name = value.String
+				pe.Title = value.String
+			}
+		case permission.FieldValue:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field value", values[i])
+			} else if value.Valid {
+				pe.Value = value.String
+			}
+		case permission.FieldGroup:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field group", values[i])
+			} else if value.Valid {
+				pe.Group = value.String
 			}
 		default:
 			pe.selectValues.Set(columns[i], values[i])
@@ -96,9 +112,9 @@ func (pe *Permission) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the Permission.
+// GetValue returns the ent.Value that was dynamically selected and assigned to the Permission.
 // This includes values selected through modifiers, order, etc.
-func (pe *Permission) Value(name string) (ent.Value, error) {
+func (pe *Permission) GetValue(name string) (ent.Value, error) {
 	return pe.selectValues.Get(name)
 }
 
@@ -135,8 +151,14 @@ func (pe *Permission) String() string {
 	var builder strings.Builder
 	builder.WriteString("Permission(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", pe.ID))
-	builder.WriteString("name=")
-	builder.WriteString(pe.Name)
+	builder.WriteString("title=")
+	builder.WriteString(pe.Title)
+	builder.WriteString(", ")
+	builder.WriteString("value=")
+	builder.WriteString(pe.Value)
+	builder.WriteString(", ")
+	builder.WriteString("group=")
+	builder.WriteString(pe.Group)
 	builder.WriteByte(')')
 	return builder.String()
 }

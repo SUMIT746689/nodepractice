@@ -29,9 +29,35 @@ func (pu *PermissionUpdate) Where(ps ...predicate.Permission) *PermissionUpdate 
 	return pu
 }
 
-// SetName sets the "name" field.
-func (pu *PermissionUpdate) SetName(s string) *PermissionUpdate {
-	pu.mutation.SetName(s)
+// SetTitle sets the "title" field.
+func (pu *PermissionUpdate) SetTitle(s string) *PermissionUpdate {
+	pu.mutation.SetTitle(s)
+	return pu
+}
+
+// SetValue sets the "value" field.
+func (pu *PermissionUpdate) SetValue(s string) *PermissionUpdate {
+	pu.mutation.SetValue(s)
+	return pu
+}
+
+// SetGroup sets the "group" field.
+func (pu *PermissionUpdate) SetGroup(s string) *PermissionUpdate {
+	pu.mutation.SetGroup(s)
+	return pu
+}
+
+// SetNillableGroup sets the "group" field if the given value is not nil.
+func (pu *PermissionUpdate) SetNillableGroup(s *string) *PermissionUpdate {
+	if s != nil {
+		pu.SetGroup(*s)
+	}
+	return pu
+}
+
+// ClearGroup clears the value of the "group" field.
+func (pu *PermissionUpdate) ClearGroup() *PermissionUpdate {
+	pu.mutation.ClearGroup()
 	return pu
 }
 
@@ -141,9 +167,19 @@ func (pu *PermissionUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pu *PermissionUpdate) check() error {
-	if v, ok := pu.mutation.Name(); ok {
-		if err := permission.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Permission.name": %w`, err)}
+	if v, ok := pu.mutation.Title(); ok {
+		if err := permission.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Permission.title": %w`, err)}
+		}
+	}
+	if v, ok := pu.mutation.Value(); ok {
+		if err := permission.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "Permission.value": %w`, err)}
+		}
+	}
+	if v, ok := pu.mutation.Group(); ok {
+		if err := permission.GroupValidator(v); err != nil {
+			return &ValidationError{Name: "group", err: fmt.Errorf(`ent: validator failed for field "Permission.group": %w`, err)}
 		}
 	}
 	return nil
@@ -161,8 +197,17 @@ func (pu *PermissionUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := pu.mutation.Name(); ok {
-		_spec.SetField(permission.FieldName, field.TypeString, value)
+	if value, ok := pu.mutation.Title(); ok {
+		_spec.SetField(permission.FieldTitle, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Value(); ok {
+		_spec.SetField(permission.FieldValue, field.TypeString, value)
+	}
+	if value, ok := pu.mutation.Group(); ok {
+		_spec.SetField(permission.FieldGroup, field.TypeString, value)
+	}
+	if pu.mutation.GroupCleared() {
+		_spec.ClearField(permission.FieldGroup, field.TypeString)
 	}
 	if pu.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -274,9 +319,35 @@ type PermissionUpdateOne struct {
 	mutation *PermissionMutation
 }
 
-// SetName sets the "name" field.
-func (puo *PermissionUpdateOne) SetName(s string) *PermissionUpdateOne {
-	puo.mutation.SetName(s)
+// SetTitle sets the "title" field.
+func (puo *PermissionUpdateOne) SetTitle(s string) *PermissionUpdateOne {
+	puo.mutation.SetTitle(s)
+	return puo
+}
+
+// SetValue sets the "value" field.
+func (puo *PermissionUpdateOne) SetValue(s string) *PermissionUpdateOne {
+	puo.mutation.SetValue(s)
+	return puo
+}
+
+// SetGroup sets the "group" field.
+func (puo *PermissionUpdateOne) SetGroup(s string) *PermissionUpdateOne {
+	puo.mutation.SetGroup(s)
+	return puo
+}
+
+// SetNillableGroup sets the "group" field if the given value is not nil.
+func (puo *PermissionUpdateOne) SetNillableGroup(s *string) *PermissionUpdateOne {
+	if s != nil {
+		puo.SetGroup(*s)
+	}
+	return puo
+}
+
+// ClearGroup clears the value of the "group" field.
+func (puo *PermissionUpdateOne) ClearGroup() *PermissionUpdateOne {
+	puo.mutation.ClearGroup()
 	return puo
 }
 
@@ -399,9 +470,19 @@ func (puo *PermissionUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (puo *PermissionUpdateOne) check() error {
-	if v, ok := puo.mutation.Name(); ok {
-		if err := permission.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Permission.name": %w`, err)}
+	if v, ok := puo.mutation.Title(); ok {
+		if err := permission.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Permission.title": %w`, err)}
+		}
+	}
+	if v, ok := puo.mutation.Value(); ok {
+		if err := permission.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "Permission.value": %w`, err)}
+		}
+	}
+	if v, ok := puo.mutation.Group(); ok {
+		if err := permission.GroupValidator(v); err != nil {
+			return &ValidationError{Name: "group", err: fmt.Errorf(`ent: validator failed for field "Permission.group": %w`, err)}
 		}
 	}
 	return nil
@@ -436,8 +517,17 @@ func (puo *PermissionUpdateOne) sqlSave(ctx context.Context) (_node *Permission,
 			}
 		}
 	}
-	if value, ok := puo.mutation.Name(); ok {
-		_spec.SetField(permission.FieldName, field.TypeString, value)
+	if value, ok := puo.mutation.Title(); ok {
+		_spec.SetField(permission.FieldTitle, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Value(); ok {
+		_spec.SetField(permission.FieldValue, field.TypeString, value)
+	}
+	if value, ok := puo.mutation.Group(); ok {
+		_spec.SetField(permission.FieldGroup, field.TypeString, value)
+	}
+	if puo.mutation.GroupCleared() {
+		_spec.ClearField(permission.FieldGroup, field.TypeString)
 	}
 	if puo.mutation.RolesCleared() {
 		edge := &sqlgraph.EdgeSpec{

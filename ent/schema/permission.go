@@ -14,7 +14,9 @@ type Permission struct {
 // Fields of the Permission.
 func (Permission) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").MaxLen(50),
+		field.String("title").MaxLen(50),
+		field.String("value").MaxLen(50),
+		field.String("group").MaxLen(50).Optional(),
 	}
 }
 

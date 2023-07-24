@@ -3,7 +3,6 @@
 package user
 
 import (
-	"fmt"
 	"time"
 
 	"entgo.io/ent/dialect/sql"
@@ -33,10 +32,10 @@ const (
 	FieldEmail = "email"
 	// FieldRoleID holds the string denoting the role_id field in the database.
 	FieldRoleID = "role_id"
-	// FieldHasPermission holds the string denoting the has_permission field in the database.
-	FieldHasPermission = "has_permission"
 	// EdgePermissions holds the string denoting the permissions edge name in mutations.
 	EdgePermissions = "permissions"
+	// EdgeRole holds the string denoting the role edge name in mutations.
+	EdgeRole = "role"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// PermissionsTable is the table that holds the permissions relation/edge. The primary key declared below.
@@ -44,6 +43,13 @@ const (
 	// PermissionsInverseTable is the table name for the Permission entity.
 	// It exists in this package in order to avoid circular dependency with the "permission" package.
 	PermissionsInverseTable = "permissions"
+	// RoleTable is the table that holds the role relation/edge.
+	RoleTable = "users"
+	// RoleInverseTable is the table name for the Role entity.
+	// It exists in this package in order to avoid circular dependency with the "role" package.
+	RoleInverseTable = "roles"
+	// RoleColumn is the table column denoting the role relation/edge.
+	RoleColumn = "role_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -58,7 +64,6 @@ var Columns = []string{
 	FieldPhoneNumber,
 	FieldEmail,
 	FieldRoleID,
-	FieldHasPermission,
 }
 
 var (
@@ -91,33 +96,6 @@ var (
 	// UsernameValidator is a validator for the "username" field. It is called by the builders before save.
 	UsernameValidator func(string) error
 )
-
-// HasPermission defines the type for the "has_permission" enum field.
-type HasPermission string
-
-// HasPermissionNULL is the default value of the HasPermission enum.
-const DefaultHasPermission = HasPermissionNULL
-
-// HasPermission values.
-const (
-	HasPermissionNULL HasPermission = "NULL"
-	HasPermissionROLE HasPermission = "ROLE"
-	HasPermissionUSER HasPermission = "USER"
-)
-
-func (hp HasPermission) String() string {
-	return string(hp)
-}
-
-// HasPermissionValidator is a validator for the "has_permission" field enum values. It is called by the builders before save.
-func HasPermissionValidator(hp HasPermission) error {
-	switch hp {
-	case HasPermissionNULL, HasPermissionROLE, HasPermissionUSER:
-		return nil
-	default:
-		return fmt.Errorf("user: invalid enum value for has_permission field: %q", hp)
-	}
-}
 
 // OrderOption defines the ordering options for the User queries.
 type OrderOption func(*sql.Selector)
@@ -172,11 +150,6 @@ func ByRoleID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRoleID, opts...).ToFunc()
 }
 
-// ByHasPermission orders the results by the has_permission field.
-func ByHasPermission(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldHasPermission, opts...).ToFunc()
-}
-
 // ByPermissionsCount orders the results by permissions count.
 func ByPermissionsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -190,10 +163,24 @@ func ByPermissions(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newPermissionsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByRoleField orders the results by role field.
+func ByRoleField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newRoleStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newPermissionsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(PermissionsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2M, false, PermissionsTable, PermissionsPrimaryKey...),
+	)
+}
+func newRoleStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(RoleInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, RoleTable, RoleColumn),
 	)
 }

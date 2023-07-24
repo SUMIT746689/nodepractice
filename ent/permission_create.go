@@ -21,9 +21,29 @@ type PermissionCreate struct {
 	hooks    []Hook
 }
 
-// SetName sets the "name" field.
-func (pc *PermissionCreate) SetName(s string) *PermissionCreate {
-	pc.mutation.SetName(s)
+// SetTitle sets the "title" field.
+func (pc *PermissionCreate) SetTitle(s string) *PermissionCreate {
+	pc.mutation.SetTitle(s)
+	return pc
+}
+
+// SetValue sets the "value" field.
+func (pc *PermissionCreate) SetValue(s string) *PermissionCreate {
+	pc.mutation.SetValue(s)
+	return pc
+}
+
+// SetGroup sets the "group" field.
+func (pc *PermissionCreate) SetGroup(s string) *PermissionCreate {
+	pc.mutation.SetGroup(s)
+	return pc
+}
+
+// SetNillableGroup sets the "group" field if the given value is not nil.
+func (pc *PermissionCreate) SetNillableGroup(s *string) *PermissionCreate {
+	if s != nil {
+		pc.SetGroup(*s)
+	}
 	return pc
 }
 
@@ -91,12 +111,25 @@ func (pc *PermissionCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pc *PermissionCreate) check() error {
-	if _, ok := pc.mutation.Name(); !ok {
-		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Permission.name"`)}
+	if _, ok := pc.mutation.Title(); !ok {
+		return &ValidationError{Name: "title", err: errors.New(`ent: missing required field "Permission.title"`)}
 	}
-	if v, ok := pc.mutation.Name(); ok {
-		if err := permission.NameValidator(v); err != nil {
-			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Permission.name": %w`, err)}
+	if v, ok := pc.mutation.Title(); ok {
+		if err := permission.TitleValidator(v); err != nil {
+			return &ValidationError{Name: "title", err: fmt.Errorf(`ent: validator failed for field "Permission.title": %w`, err)}
+		}
+	}
+	if _, ok := pc.mutation.Value(); !ok {
+		return &ValidationError{Name: "value", err: errors.New(`ent: missing required field "Permission.value"`)}
+	}
+	if v, ok := pc.mutation.Value(); ok {
+		if err := permission.ValueValidator(v); err != nil {
+			return &ValidationError{Name: "value", err: fmt.Errorf(`ent: validator failed for field "Permission.value": %w`, err)}
+		}
+	}
+	if v, ok := pc.mutation.Group(); ok {
+		if err := permission.GroupValidator(v); err != nil {
+			return &ValidationError{Name: "group", err: fmt.Errorf(`ent: validator failed for field "Permission.group": %w`, err)}
 		}
 	}
 	return nil
@@ -125,9 +158,17 @@ func (pc *PermissionCreate) createSpec() (*Permission, *sqlgraph.CreateSpec) {
 		_node = &Permission{config: pc.config}
 		_spec = sqlgraph.NewCreateSpec(permission.Table, sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt))
 	)
-	if value, ok := pc.mutation.Name(); ok {
-		_spec.SetField(permission.FieldName, field.TypeString, value)
-		_node.Name = value
+	if value, ok := pc.mutation.Title(); ok {
+		_spec.SetField(permission.FieldTitle, field.TypeString, value)
+		_node.Title = value
+	}
+	if value, ok := pc.mutation.Value(); ok {
+		_spec.SetField(permission.FieldValue, field.TypeString, value)
+		_node.Value = value
+	}
+	if value, ok := pc.mutation.Group(); ok {
+		_spec.SetField(permission.FieldGroup, field.TypeString, value)
+		_node.Group = value
 	}
 	if nodes := pc.mutation.RolesIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

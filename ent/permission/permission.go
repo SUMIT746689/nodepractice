@@ -12,8 +12,12 @@ const (
 	Label = "permission"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
+	// FieldTitle holds the string denoting the title field in the database.
+	FieldTitle = "title"
+	// FieldValue holds the string denoting the value field in the database.
+	FieldValue = "value"
+	// FieldGroup holds the string denoting the group field in the database.
+	FieldGroup = "group"
 	// EdgeRoles holds the string denoting the roles edge name in mutations.
 	EdgeRoles = "roles"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
@@ -35,7 +39,9 @@ const (
 // Columns holds all SQL columns for permission fields.
 var Columns = []string{
 	FieldID,
-	FieldName,
+	FieldTitle,
+	FieldValue,
+	FieldGroup,
 }
 
 var (
@@ -58,8 +64,12 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// NameValidator is a validator for the "name" field. It is called by the builders before save.
-	NameValidator func(string) error
+	// TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	TitleValidator func(string) error
+	// ValueValidator is a validator for the "value" field. It is called by the builders before save.
+	ValueValidator func(string) error
+	// GroupValidator is a validator for the "group" field. It is called by the builders before save.
+	GroupValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the Permission queries.
@@ -70,9 +80,19 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByName orders the results by the name field.
-func ByName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldName, opts...).ToFunc()
+// ByTitle orders the results by the title field.
+func ByTitle(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTitle, opts...).ToFunc()
+}
+
+// ByValue orders the results by the value field.
+func ByValue(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldValue, opts...).ToFunc()
+}
+
+// ByGroup orders the results by the group field.
+func ByGroup(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroup, opts...).ToFunc()
 }
 
 // ByRolesCount orders the results by roles count.

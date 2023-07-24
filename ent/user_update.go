@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"pos/ent/permission"
 	"pos/ent/predicate"
+	"pos/ent/role"
 	"pos/ent/user"
 	"time"
 
@@ -101,28 +102,7 @@ func (uu *UserUpdate) ClearEmail() *UserUpdate {
 
 // SetRoleID sets the "role_id" field.
 func (uu *UserUpdate) SetRoleID(i int) *UserUpdate {
-	uu.mutation.ResetRoleID()
 	uu.mutation.SetRoleID(i)
-	return uu
-}
-
-// AddRoleID adds i to the "role_id" field.
-func (uu *UserUpdate) AddRoleID(i int) *UserUpdate {
-	uu.mutation.AddRoleID(i)
-	return uu
-}
-
-// SetHasPermission sets the "has_permission" field.
-func (uu *UserUpdate) SetHasPermission(up user.HasPermission) *UserUpdate {
-	uu.mutation.SetHasPermission(up)
-	return uu
-}
-
-// SetNillableHasPermission sets the "has_permission" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableHasPermission(up *user.HasPermission) *UserUpdate {
-	if up != nil {
-		uu.SetHasPermission(*up)
-	}
 	return uu
 }
 
@@ -139,6 +119,11 @@ func (uu *UserUpdate) AddPermissions(p ...*Permission) *UserUpdate {
 		ids[i] = p[i].ID
 	}
 	return uu.AddPermissionIDs(ids...)
+}
+
+// SetRole sets the "role" edge to the Role entity.
+func (uu *UserUpdate) SetRole(r *Role) *UserUpdate {
+	return uu.SetRoleID(r.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -165,6 +150,12 @@ func (uu *UserUpdate) RemovePermissions(p ...*Permission) *UserUpdate {
 		ids[i] = p[i].ID
 	}
 	return uu.RemovePermissionIDs(ids...)
+}
+
+// ClearRole clears the "role" edge to the Role entity.
+func (uu *UserUpdate) ClearRole() *UserUpdate {
+	uu.mutation.ClearRole()
+	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -220,10 +211,8 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if v, ok := uu.mutation.HasPermission(); ok {
-		if err := user.HasPermissionValidator(v); err != nil {
-			return &ValidationError{Name: "has_permission", err: fmt.Errorf(`ent: validator failed for field "User.has_permission": %w`, err)}
-		}
+	if _, ok := uu.mutation.RoleID(); uu.mutation.RoleCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.role"`)
 	}
 	return nil
 }
@@ -267,15 +256,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if uu.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uu.mutation.RoleID(); ok {
-		_spec.SetField(user.FieldRoleID, field.TypeInt, value)
-	}
-	if value, ok := uu.mutation.AddedRoleID(); ok {
-		_spec.AddField(user.FieldRoleID, field.TypeInt, value)
-	}
-	if value, ok := uu.mutation.HasPermission(); ok {
-		_spec.SetField(user.FieldHasPermission, field.TypeEnum, value)
-	}
 	if uu.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -314,6 +294,35 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uu.mutation.RoleCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.RoleTable,
+			Columns: []string{user.RoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RoleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.RoleTable,
+			Columns: []string{user.RoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -413,28 +422,7 @@ func (uuo *UserUpdateOne) ClearEmail() *UserUpdateOne {
 
 // SetRoleID sets the "role_id" field.
 func (uuo *UserUpdateOne) SetRoleID(i int) *UserUpdateOne {
-	uuo.mutation.ResetRoleID()
 	uuo.mutation.SetRoleID(i)
-	return uuo
-}
-
-// AddRoleID adds i to the "role_id" field.
-func (uuo *UserUpdateOne) AddRoleID(i int) *UserUpdateOne {
-	uuo.mutation.AddRoleID(i)
-	return uuo
-}
-
-// SetHasPermission sets the "has_permission" field.
-func (uuo *UserUpdateOne) SetHasPermission(up user.HasPermission) *UserUpdateOne {
-	uuo.mutation.SetHasPermission(up)
-	return uuo
-}
-
-// SetNillableHasPermission sets the "has_permission" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableHasPermission(up *user.HasPermission) *UserUpdateOne {
-	if up != nil {
-		uuo.SetHasPermission(*up)
-	}
 	return uuo
 }
 
@@ -451,6 +439,11 @@ func (uuo *UserUpdateOne) AddPermissions(p ...*Permission) *UserUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return uuo.AddPermissionIDs(ids...)
+}
+
+// SetRole sets the "role" edge to the Role entity.
+func (uuo *UserUpdateOne) SetRole(r *Role) *UserUpdateOne {
+	return uuo.SetRoleID(r.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -477,6 +470,12 @@ func (uuo *UserUpdateOne) RemovePermissions(p ...*Permission) *UserUpdateOne {
 		ids[i] = p[i].ID
 	}
 	return uuo.RemovePermissionIDs(ids...)
+}
+
+// ClearRole clears the "role" edge to the Role entity.
+func (uuo *UserUpdateOne) ClearRole() *UserUpdateOne {
+	uuo.mutation.ClearRole()
+	return uuo
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -545,10 +544,8 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "username", err: fmt.Errorf(`ent: validator failed for field "User.username": %w`, err)}
 		}
 	}
-	if v, ok := uuo.mutation.HasPermission(); ok {
-		if err := user.HasPermissionValidator(v); err != nil {
-			return &ValidationError{Name: "has_permission", err: fmt.Errorf(`ent: validator failed for field "User.has_permission": %w`, err)}
-		}
+	if _, ok := uuo.mutation.RoleID(); uuo.mutation.RoleCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.role"`)
 	}
 	return nil
 }
@@ -609,15 +606,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if uuo.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uuo.mutation.RoleID(); ok {
-		_spec.SetField(user.FieldRoleID, field.TypeInt, value)
-	}
-	if value, ok := uuo.mutation.AddedRoleID(); ok {
-		_spec.AddField(user.FieldRoleID, field.TypeInt, value)
-	}
-	if value, ok := uuo.mutation.HasPermission(); ok {
-		_spec.SetField(user.FieldHasPermission, field.TypeEnum, value)
-	}
 	if uuo.mutation.PermissionsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -656,6 +644,35 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(permission.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.RoleCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.RoleTable,
+			Columns: []string{user.RoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RoleIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.RoleTable,
+			Columns: []string{user.RoleColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

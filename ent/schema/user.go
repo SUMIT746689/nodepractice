@@ -21,9 +21,7 @@ func (User) Fields() []ent.Field {
 		field.String("password").Sensitive(),
 		field.String("phone_number").Optional(),
 		field.String("email").Optional(),
-		// field.Enum("role_id").Values("SUPERADMIN", "ADMIN", "CASHIER", "CUSTOMER"),
 		field.Int("role_id"),
-		field.Enum("has_permission").Values("NULL", "ROLE", "USER").Default("NULL"),
 	}
 }
 
@@ -31,7 +29,7 @@ func (User) Fields() []ent.Field {
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("permissions", Permission.Type),
-		// edge.To("roles", Role.Type).Field("role_id"),
+		edge.From("role", Role.Type).Ref("users").Unique().Field("role_id").Required(),
 	}
 }
 

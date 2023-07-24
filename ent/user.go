@@ -4,6 +4,7 @@ package ent
 
 import (
 	"fmt"
+	"pos/ent/role"
 	"pos/ent/user"
 	"strings"
 	"time"
@@ -35,8 +36,6 @@ type User struct {
 	Email string `json:"email,omitempty"`
 	// RoleID holds the value of the "role_id" field.
 	RoleID int `json:"role_id,omitempty"`
-	// HasPermission holds the value of the "has_permission" field.
-	HasPermission user.HasPermission `json:"has_permission,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges        UserEdges `json:"edges"`
@@ -47,9 +46,11 @@ type User struct {
 type UserEdges struct {
 	// Permissions holds the value of the permissions edge.
 	Permissions []*Permission `json:"permissions,omitempty"`
+	// Role holds the value of the role edge.
+	Role *Role `json:"role,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // PermissionsOrErr returns the Permissions value or an error if the edge
@@ -61,6 +62,19 @@ func (e UserEdges) PermissionsOrErr() ([]*Permission, error) {
 	return nil, &NotLoadedError{edge: "permissions"}
 }
 
+// RoleOrErr returns the Role value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) RoleOrErr() (*Role, error) {
+	if e.loadedTypes[1] {
+		if e.Role == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: role.Label}
+		}
+		return e.Role, nil
+	}
+	return nil, &NotLoadedError{edge: "role"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
@@ -68,7 +82,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldID, user.FieldRoleID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldFirstName, user.FieldLastName, user.FieldUsername, user.FieldPassword, user.FieldPhoneNumber, user.FieldEmail, user.FieldHasPermission:
+		case user.FieldFirstName, user.FieldLastName, user.FieldUsername, user.FieldPassword, user.FieldPhoneNumber, user.FieldEmail:
 			values[i] = new(sql.NullString)
 		case user.FieldCreateTime, user.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
@@ -147,12 +161,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.RoleID = int(value.Int64)
 			}
-		case user.FieldHasPermission:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field has_permission", values[i])
-			} else if value.Valid {
-				u.HasPermission = user.HasPermission(value.String)
-			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
 		}
@@ -169,6 +177,11 @@ func (u *User) Value(name string) (ent.Value, error) {
 // QueryPermissions queries the "permissions" edge of the User entity.
 func (u *User) QueryPermissions() *PermissionQuery {
 	return NewUserClient(u.config).QueryPermissions(u)
+}
+
+// QueryRole queries the "role" edge of the User entity.
+func (u *User) QueryRole() *RoleQuery {
+	return NewUserClient(u.config).QueryRole(u)
 }
 
 // Update returns a builder for updating this User.
@@ -219,9 +232,6 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("role_id=")
 	builder.WriteString(fmt.Sprintf("%v", u.RoleID))
-	builder.WriteString(", ")
-	builder.WriteString("has_permission=")
-	builder.WriteString(fmt.Sprintf("%v", u.HasPermission))
 	builder.WriteByte(')')
 	return builder.String()
 }

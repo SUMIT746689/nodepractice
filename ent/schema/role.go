@@ -14,7 +14,7 @@ type Role struct {
 // Fields of the Role.
 func (Role) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("name").MaxLen(50),
+		field.String("title").MaxLen(50),
 	}
 }
 
@@ -22,6 +22,6 @@ func (Role) Fields() []ent.Field {
 func (Role) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("permissions", Permission.Type),
-		// edge.From("users", Permission.Type).Ref("roles"),
+		edge.To("users", User.Type),
 	}
 }

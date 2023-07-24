@@ -16,16 +16,24 @@ import (
 func init() {
 	permissionFields := schema.Permission{}.Fields()
 	_ = permissionFields
-	// permissionDescName is the schema descriptor for name field.
-	permissionDescName := permissionFields[0].Descriptor()
-	// permission.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	permission.NameValidator = permissionDescName.Validators[0].(func(string) error)
+	// permissionDescTitle is the schema descriptor for title field.
+	permissionDescTitle := permissionFields[0].Descriptor()
+	// permission.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	permission.TitleValidator = permissionDescTitle.Validators[0].(func(string) error)
+	// permissionDescValue is the schema descriptor for value field.
+	permissionDescValue := permissionFields[1].Descriptor()
+	// permission.ValueValidator is a validator for the "value" field. It is called by the builders before save.
+	permission.ValueValidator = permissionDescValue.Validators[0].(func(string) error)
+	// permissionDescGroup is the schema descriptor for group field.
+	permissionDescGroup := permissionFields[2].Descriptor()
+	// permission.GroupValidator is a validator for the "group" field. It is called by the builders before save.
+	permission.GroupValidator = permissionDescGroup.Validators[0].(func(string) error)
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
-	// roleDescName is the schema descriptor for name field.
-	roleDescName := roleFields[0].Descriptor()
-	// role.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	role.NameValidator = roleDescName.Validators[0].(func(string) error)
+	// roleDescTitle is the schema descriptor for title field.
+	roleDescTitle := roleFields[0].Descriptor()
+	// role.TitleValidator is a validator for the "title" field. It is called by the builders before save.
+	role.TitleValidator = roleDescTitle.Validators[0].(func(string) error)
 	userMixin := schema.User{}.Mixin()
 	userMixinFields0 := userMixin[0].Fields()
 	_ = userMixinFields0

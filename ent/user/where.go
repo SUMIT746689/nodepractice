@@ -610,46 +610,6 @@ func RoleIDNotIn(vs ...int) predicate.User {
 	return predicate.User(sql.FieldNotIn(FieldRoleID, vs...))
 }
 
-// RoleIDGT applies the GT predicate on the "role_id" field.
-func RoleIDGT(v int) predicate.User {
-	return predicate.User(sql.FieldGT(FieldRoleID, v))
-}
-
-// RoleIDGTE applies the GTE predicate on the "role_id" field.
-func RoleIDGTE(v int) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldRoleID, v))
-}
-
-// RoleIDLT applies the LT predicate on the "role_id" field.
-func RoleIDLT(v int) predicate.User {
-	return predicate.User(sql.FieldLT(FieldRoleID, v))
-}
-
-// RoleIDLTE applies the LTE predicate on the "role_id" field.
-func RoleIDLTE(v int) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldRoleID, v))
-}
-
-// HasPermissionEQ applies the EQ predicate on the "has_permission" field.
-func HasPermissionEQ(v HasPermission) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldHasPermission, v))
-}
-
-// HasPermissionNEQ applies the NEQ predicate on the "has_permission" field.
-func HasPermissionNEQ(v HasPermission) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldHasPermission, v))
-}
-
-// HasPermissionIn applies the In predicate on the "has_permission" field.
-func HasPermissionIn(vs ...HasPermission) predicate.User {
-	return predicate.User(sql.FieldIn(FieldHasPermission, vs...))
-}
-
-// HasPermissionNotIn applies the NotIn predicate on the "has_permission" field.
-func HasPermissionNotIn(vs ...HasPermission) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldHasPermission, vs...))
-}
-
 // HasPermissions applies the HasEdge predicate on the "permissions" edge.
 func HasPermissions() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
@@ -665,6 +625,29 @@ func HasPermissions() predicate.User {
 func HasPermissionsWith(preds ...predicate.Permission) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newPermissionsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasRole applies the HasEdge predicate on the "role" edge.
+func HasRole() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, RoleTable, RoleColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasRoleWith applies the HasEdge predicate on the "role" edge with a given conditions (other predicates).
+func HasRoleWith(preds ...predicate.Role) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newRoleStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

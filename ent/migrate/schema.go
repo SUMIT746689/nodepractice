@@ -11,7 +11,9 @@ var (
 	// PermissionsColumns holds the columns for the "permissions" table.
 	PermissionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "title", Type: field.TypeString, Size: 50},
+		{Name: "value", Type: field.TypeString, Size: 50},
+		{Name: "group", Type: field.TypeString, Nullable: true, Size: 50},
 	}
 	// PermissionsTable holds the schema information for the "permissions" table.
 	PermissionsTable = &schema.Table{
@@ -22,7 +24,7 @@ var (
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "title", Type: field.TypeString, Size: 50},
 	}
 	// RolesTable holds the schema information for the "roles" table.
 	RolesTable = &schema.Table{
@@ -42,13 +44,20 @@ var (
 		{Name: "phone_number", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
 		{Name: "role_id", Type: field.TypeInt},
-		{Name: "has_permission", Type: field.TypeEnum, Enums: []string{"NULL", "ROLE", "USER"}, Default: "NULL"},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_roles_users",
+				Columns:    []*schema.Column{UsersColumns[9]},
+				RefColumns: []*schema.Column{RolesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// RolePermissionsColumns holds the columns for the "role_permissions" table.
 	RolePermissionsColumns = []*schema.Column{
@@ -111,6 +120,7 @@ var (
 )
 
 func init() {
+	UsersTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	UserPermissionsTable.ForeignKeys[0].RefTable = UsersTable
