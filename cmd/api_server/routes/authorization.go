@@ -12,9 +12,9 @@ func AuthorizationRoutes() *fiber.App {
 	router := app.Use(middleware.Protected())
 
 	router.Post("/roles", authcontroller.CreateRole)
+	router.Get("/roles", authcontroller.IndexRole)
 	//router.Patch("/users/:id", usercontroller.Update)
 	//router.Delete("/users/:id", usercontroller.Delete)
-	//router.Get("/users", usercontroller.Index)
 
 	return app
 }

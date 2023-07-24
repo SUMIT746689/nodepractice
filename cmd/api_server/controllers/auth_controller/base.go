@@ -118,3 +118,12 @@ func CreateRole(c *fiber.Ctx) error {
 
 	return c.JSON(_role)
 }
+
+func IndexRole(c *fiber.Ctx) error {
+	all, err := pkg.EntClient().Role.Query().All(c.Context())
+	if err != nil {
+		return c.SendStatus(fiber.StatusUnprocessableEntity)
+	}
+
+	return c.JSON(all)
+}
