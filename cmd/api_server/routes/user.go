@@ -13,8 +13,8 @@ func UserRoutes() *fiber.App {
 	router := app.Use(middleware.Protected())
 
 	router.Post("/users", usercontroller.Create)
-	router.Patch("/users/:user_id", usercontroller.Update)
-	router.Delete("/users/:user_id", usercontroller.Delete)
+	router.Patch("/users/:id", usercontroller.Update)
+	router.Delete("/users/:id", usercontroller.Delete)
 	router.Get("/users", usercontroller.Index)
 
 	return app
