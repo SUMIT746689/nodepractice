@@ -3,6 +3,8 @@ package authcontroller
 import (
 	"log"
 	"os"
+	"pos/ent"
+	"pos/ent/permission"
 	"pos/ent/user"
 	"pos/internal/app"
 	userrepo "pos/internal/repository/user_repo"
@@ -80,11 +82,18 @@ func Me(c *fiber.Ctx) error {
 	claim := usr.Claims.(jwt.MapClaims)
 	identity := claim["identity"].(string)
 
-	user, err := pkg.EntClient().User.Query().Where(user.Username(identity)).Only(c.Context())
+	_user, err := pkg.EntClient().User.Query().Where(user.Username(identity)).WithPermissions(func(query *ent.PermissionQuery) {
+		query.Select(permission.FieldValue)
+	}).WithRole(func(query *ent.RoleQuery) {
+		query.WithPermissions(func(query *ent.PermissionQuery) {
+			query.Select(permission.FieldValue)
+		})
+	}).Only(c.Context())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
-	return c.JSON(fiber.Map{"user": user})
+
+	return c.JSON(fiber.Map{"user": _user})
 }
 
 type loginRequest struct {
