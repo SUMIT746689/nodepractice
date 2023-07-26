@@ -1,5 +1,5 @@
 import { API_KEY } from '@/secret';
-import { GetAllUsersInterface, UpdateUser, User } from '@/types/users'
+import { CreateUser, GetAllUsersInterface, UpdateUser, User } from '@/types/users'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 // import axios from "axios"
 
@@ -35,7 +35,7 @@ export const userApi = createApi({
       transformResponse: (response: GetAllUsersInterface) => response.users,
       providesTags: [{ type: "Users", id: "LIST" }],
     }),
-    postUser: builder.mutation<User, string>({
+    postUser: builder.mutation<CreateUser, string>({
       query: (body) => ({
         url: '/users',
         method: 'POST',

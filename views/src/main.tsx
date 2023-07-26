@@ -13,6 +13,7 @@ import { Provider } from 'react-redux'
 import { store } from './redux/store.ts'
 import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications';
+import ErrorBoundary from './components/ErrorBoundary.tsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -23,6 +24,7 @@ const router = createBrowserRouter([
       return null
     },
     action: LayoutRouteAction,
+    errorElement:<ErrorBoundary />,
     children: [
       {
         path: "/dashboard",
@@ -44,7 +46,7 @@ const router = createBrowserRouter([
           return await userList()
         },
       },
-    ]
+    ],
   },
 
   {

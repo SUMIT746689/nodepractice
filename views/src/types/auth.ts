@@ -1,3 +1,4 @@
+import { Role } from "@/types/role";
 
 export interface AuthLogIn {
   env: string;
@@ -11,5 +12,8 @@ export interface AuthUser {
   last_name: string;
   email?: string;
   phone_number?: string;
-  role: string;
+  role_id: number,
+  edges: {
+    role: Role
+  }
 }

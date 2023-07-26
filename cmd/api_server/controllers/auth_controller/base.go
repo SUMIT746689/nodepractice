@@ -5,6 +5,7 @@ import (
 	"os"
 	"pos/ent"
 	"pos/ent/permission"
+	"pos/ent/role"
 	"pos/ent/user"
 	"pos/internal/app"
 	userrepo "pos/internal/repository/user_repo"
@@ -120,10 +121,37 @@ func CreateRole(c *fiber.Ctx) error {
 }
 
 func IndexRole(c *fiber.Ctx) error {
-	all, err := pkg.EntClient().Role.Query().All(c.Context())
+	usr := c.Locals("user").(*jwt.Token)
+	claim := usr.Claims.(jwt.MapClaims)
+	identity := claim["identity"].(string)
+
+	user, err := pkg.EntClient().User.Query().Where(user.Username(identity)).QueryRole().Only(c.Context())
 	if err != nil {
-		return c.SendStatus(fiber.StatusUnprocessableEntity)
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	return c.JSON(all)
+	switch user.Value {
+	case "SUPERADMIN":
+		all, err := pkg.EntClient().Role.Query().Where(role.Value("ADMIN")).All(c.Context())
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		return c.JSON(all)
+	case "ADMIN":
+		all, err := pkg.EntClient().Role.Query().Where(role.Not(role.Value("ADMIN")), role.Not(role.Value("SUPERADMIN"))).All(c.Context())
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		return c.JSON(all)
+	default:
+		return c.JSON("[]")
+	}
+
+	// all, err := pkg.EntClient().Role.Query().All(c.Context())
+
+	// if err != nil {
+	// 	return c.SendStatus(fiber.StatusUnprocessableEntity)
+	// }
+
+	// return c.JSON(all)
 }

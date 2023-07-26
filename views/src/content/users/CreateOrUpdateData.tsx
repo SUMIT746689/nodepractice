@@ -1,22 +1,29 @@
-import { Box, Button, Grid, Group, LoadingOverlay, Modal, Select, TextInput } from "@mantine/core";
+import { Box, Button, Grid, Group, LoadingOverlay, Modal, PasswordInput, Select, TextInput } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useForm } from '@mantine/form';
 import { usePostUserMutation, useUpdateUserMutation } from "@/redux/services/user";
-import { UpdateUserBody, User } from "@/types/users";
+import { CreateUser, UpdateUserBody, User } from "@/types/users";
 import { AuthUser } from "@/types/auth";
 import { notifications } from "@mantine/notifications";
+import { useCreateUserPermitRoleQuery } from "@/redux/services/role";
+import { Role } from "@/types/role";
 
 interface CreateOrUodateDataInterFace {
   editData: User | null | undefined;
   // eslint-disable-next-line @typescript-eslint/ban-types
   setEditData: Function;
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  // refetch: ()=>void;
   authUser: AuthUser | undefined;
 }
 
 const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, authUser }) => {
+
+  console.log({ authUser })
   const [open, setOpen] = useState(false);
+  const { data: roles } = useCreateUserPermitRoleQuery();
+  // if (authUser) {
+  //   const { edges: { role: { edges: {permissions = [] } = undefined } = undefined } = undefined } = authUser;
+  //   console.log({ permissions })
+  // }
 
   useEffect(() => {
     if (editData) setOpen(true);
@@ -30,7 +37,7 @@ const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, s
     <>
       <Modal opened={open} onClose={handleModalClose} title="User" centered>
         {/* Modal content */}
-        <Form editData={editData} handleModalClose={handleModalClose} role={authUser?.role} />
+        <Form editData={editData} handleModalClose={handleModalClose} roles={roles || []} />
       </Modal>
 
       <Group position="center" pr={20} >
@@ -42,12 +49,11 @@ const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, s
 
 interface FormInterface {
   editData: User | undefined | null;
-  // refetch: () => void;
   handleModalClose: () => void;
-  role: string | undefined;
+  roles: Role[] | [];
 }
 
-const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => {
+const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles }) => {
   const [createUser, { isLoading: isCreateLoading }] = usePostUserMutation()
   const [updateUser, { isLoading: isUpdateLoading }] = useUpdateUserMutation()
 
@@ -61,43 +67,45 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
       username: '',
       password: '',
       confirm_password: '',
-      role: '',
+      role_id: '',
       // termsOfService: false,
     },
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      first_name: (value) => (value ? null : 'Type your first name'),
+      last_name: (value) => (value ? null : 'Type your last name'),
+      phone_number: (value) => (!value || /^\d+$/.test(value) ? null : 'Invalid phone number'),
+      email: (value) => (!value || /^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      username: (value) => (value ? null : 'Provide username'),
+      password: (value) => (editData || /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value) ? null : 'Minimum eight characters, at least one letter and one number'),
+      confirm_password: (value, values) => ((value === values.password) ? null : 'Password did not match'),
+      role_id: (value) => (/^\d+$/.test(value) ? null : 'Select a role'),
     },
   });
 
-  const super_admin_roles = ['ADMIN']
-  const admin_roles = ['CASHIER', 'CUSTOMER', 'SUPPLIER', 'VENDOR']
-  const cashier_roles = ['CUSTOMER', 'SUPPLIER', 'VENDOR']
-
-
   useEffect(() => {
     if (editData) {
-      form.setValues((prev) => ({ ...prev, ...editData }));
-      // return form.reset();
+      form.setValues((prev) => ({ ...prev, ...editData,role_id: String(editData.role_id)}));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFormSubmit = async (values: UpdateUserBody): Promise<void> => {
+  const handleFormSubmit = async (values: CreateUser): Promise<void> => {
     console.log({ values })
+    const customizeValues = {...values,role_id:Number(values.role_id)}
     try {
       if (editData) {
-        const { data: ud, error } = await updateUser({ user_id: editData.id, body: values });
-        console.log({ ud, error });
+        const payload = await updateUser({ user_id: editData.id, body: customizeValues });
+        console.log({payload});
         // if (!error?.data) throw new Error(error.message);
-        if (error) throw new Error(error.data);
+        // if (error) throw new Error(error.data);
         notifications.show({ message: 'Sucessfully Updated' });
 
       }
       else {
-        const { data: cd, error } = await createUser(values);
-        console.log({ data: cd, error })
+        const  payload = await createUser(customizeValues);
+        console.log({"cr payload": payload})
         // if (!error?.data) throw new Error(error.message);
-        if (error) throw new Error(error.data);
+        // if (error) throw new Error(error.data);
         notifications.show({ message: 'Sucessfully Created' });
       }
 
@@ -109,6 +117,8 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
     }
 
   }
+  console.log({ roles })
+  console.log({ editData })
 
   return (
     <Box maw={500} mx="auto" pos="relative" px={40}>
@@ -136,6 +146,7 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
 
         <TextInput
           // withAsterisk
+          type="number"
           label="Phone Number"
           placeholder="your phone number..."
           {...form.getInputProps('phone_number')}
@@ -150,16 +161,18 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
         <TextInput
           withAsterisk
           label="Username"
-          placeholder="your username.."
+          placeholder="your username..."
+          autoComplete="new-username"
           {...form.getInputProps('username')}
         />
-        <TextInput
+        <PasswordInput
           withAsterisk
           label="Password"
           placeholder="your password..."
+          autoComplete="new-password"
           {...form.getInputProps('password')}
         />
-        <TextInput
+        <PasswordInput
           withAsterisk
           label="Confirm Password"
           placeholder="your confirm password..."
@@ -167,15 +180,14 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, role }) => 
         />
 
         <Select
+          withAsterisk
           label="Select Role"
           placeholder="Select Role"
-          {...form.getInputProps('role')}
+          {...form.getInputProps('role_id')}
           // sx={{"::selection":{backgroundColor:'orange'}}}
           data={
-            role === "SUPERADMIN" && super_admin_roles.map(value => ({ value, label: value })) ||
-            role === "ADMIN" && admin_roles.map(value => ({ value, label: value })) ||
-            role === "TEACHER" && cashier_roles.map(value => ({ value, label: value })) ||
-            []
+            roles ? roles?.map(({ id, title }: { id: number, title: string }) => ({ value: String(id), label: title })) : []
+
           }
         />
 

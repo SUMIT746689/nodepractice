@@ -1,11 +1,12 @@
 package usercontroller
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"log"
 	"pos/internal/app"
 	userrepo "pos/internal/repository/user_repo"
 	"pos/pkg"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func Index(c *fiber.Ctx) error {

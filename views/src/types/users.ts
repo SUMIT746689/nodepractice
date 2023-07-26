@@ -6,7 +6,15 @@ export interface User {
   last_name: string;
   email?: string;
   phone_number?: string;
-  role: string;
+  role_id: number;
+}
+export interface CreateUser {
+  username: string;
+  first_name: string;
+  last_name: string;
+  email?: string;
+  phone_number?: string;
+  role_id: number;
 }
 
 export interface GetAllUsersInterface{
@@ -19,7 +27,7 @@ export interface UpdateUserBody {
   last_name?: string;
   email?: string;
   phone_number?: string;
-  role?: string;
+  role_id?: number;
 }
 export interface UpdateUser {
   user_id: number ;

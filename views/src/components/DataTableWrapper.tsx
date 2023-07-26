@@ -1,13 +1,15 @@
 import { Paper } from '@mantine/core';
 import { DataTable } from 'mantine-datatable';
-import React, { useEffect, useState } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 
 
 
 interface HeadColumns {
-  accessor: string;
+  accessor: string ;
   width?: number;
-  title?: string;
+  title?: string | ReactElement;
+  textAlignment?: string;
+  render?: (any)=>ReactElement;
   // render?: Function;
 }
 interface PaginateTableWrapper {

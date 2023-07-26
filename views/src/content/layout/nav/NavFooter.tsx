@@ -1,5 +1,4 @@
-import { useAuthUserQuery, useLoginUserMutation } from '@/redux/services/auth';
-import { AuthUser } from '@/types/auth';
+import { useAuthUserQuery} from '@/redux/services/auth';
 import {
   UnstyledButton,
   UnstyledButtonProps,
@@ -9,7 +8,6 @@ import {
   createStyles,
 } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
-import { useEffect } from 'react';
 
 const useStyles = createStyles((theme) => ({
   user: {
@@ -19,8 +17,8 @@ const useStyles = createStyles((theme) => ({
     color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.orange[0],
 
     '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.orange[0],
-      color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.orange[8],
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.orange[9],
+      color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : "white",
 
     },
   },
@@ -37,7 +35,7 @@ export function NavFooter({ image, ...others }: UserButtonProps) {
   
   const { classes } = useStyles();
   const {data:user}=useAuthUserQuery();
-  console.log(user)
+  
   return (
     <UnstyledButton className={classes.user} {...others}>
       <Group>
@@ -53,7 +51,9 @@ export function NavFooter({ image, ...others }: UserButtonProps) {
           </Text>
         </div>
 
-        {user?.icon || <IconChevronRight size="0.9rem" stroke={1.5} />}
+        {/* {user?.icon ||  */}
+        <IconChevronRight size="0.9rem" stroke={1.5} />
+        {/* } */}
       </Group>
     </UnstyledButton>
   );

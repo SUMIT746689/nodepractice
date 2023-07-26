@@ -7,7 +7,6 @@ import {
   UnstyledButton,
   createStyles,
   rem,
-  Button,
 } from '@mantine/core';
 import { IconCalendarStats, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import { NavLink, useLocation } from 'react-router-dom';
@@ -18,16 +17,15 @@ const useStyles = createStyles((theme) => ({
     display: 'block',
     width: '100%',
     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.white,
+    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : 'white',
     fontSize: theme.fontSizes.sm,
 
     '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[0],
-      color: theme.colorScheme === 'dark' ? theme.white : theme.colors.orange[8],
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[9],
+      color: theme.colorScheme === 'dark' ? theme.white : theme.colors.orange[1],
     },
     '&:active': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[2],
-      color: theme.colorScheme === 'dark' ? theme.white : theme.colors.orange[8],
+      opacity:0.75
     },
   },
   activeControl: {
@@ -36,8 +34,8 @@ const useStyles = createStyles((theme) => ({
     width: '100%',
     padding: `${theme.spacing.xs} ${theme.spacing.md}`,
     fontSize: theme.fontSizes.sm,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[1],
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.orange[8],
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[9],
+    // color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.orange[1],
   },
 
   link: {
@@ -53,20 +51,19 @@ const useStyles = createStyles((theme) => ({
       }`,
 
     '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[0],
-      color: theme.colorScheme === 'dark' ? theme.white : theme.colors.orange[8],
+      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[9],
+      color: theme.colorScheme === 'dark' ? theme.white : theme.colors.orange[1],
     },
     '&:active': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[2],
-      color: theme.colorScheme === 'dark' ? theme.white : theme.colors.orange[8],
+     opacity:0.75
     },
   },
 
   text: {
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[0],
+    // color: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[8],
   },
   activeText: {
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[8],
+    // color: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[8],
   },
 
   activeLink: {
@@ -80,7 +77,7 @@ const useStyles = createStyles((theme) => ({
 
   themeIcon: {
     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[1] : theme.colors.orange[1],
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[8],
+    // color: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.orange[8],
   }
 }));
 
@@ -101,7 +98,7 @@ export function LinksGroup({ link, icon: Icon, label, initiallyOpened, links }: 
   console.log({ pathname })
 
   const items = (hasLinks ? links : []).map((link) => (
-    <NavLink to={link.link} className={({ isActive, isPending }) => isActive ? `${classes.activeLink} ${classes.link}` : classes.link}
+    <NavLink to={link.link} className={({ isActive }) => isActive ? `${classes.activeLink} ${classes.link}` : classes.link}
       key={link.label}
     >
       {/* <Text<'a'> component="a" > */}
@@ -112,7 +109,9 @@ export function LinksGroup({ link, icon: Icon, label, initiallyOpened, links }: 
 
   return (
     <>
+    
       {
+        label !== "Users" ?
         hasLinks ? <>
           <UnstyledButton onClick={() => setOpened((o) => !o)} className={classes.control}>
             <Group position="apart" spacing={0}>
@@ -138,11 +137,12 @@ export function LinksGroup({ link, icon: Icon, label, initiallyOpened, links }: 
         </>
           :
           <NavLink to={link || ''}
-            className={({ isActive }) => isActive ?  classes.activeControl : classes.control}
+            className={({ isActive }) => isActive ?  classes.activeControl : classes.control} 
           >
             {
-              ({ isActive }) => (
+              // ({ isActive }) => (
                 <UnstyledButton 
+                sx={{color:'white'}}
                 // className={isActive ? classes.control : classes.activeControl}
                 >
                   <Group position="apart" spacing={0}>
@@ -150,13 +150,15 @@ export function LinksGroup({ link, icon: Icon, label, initiallyOpened, links }: 
                       <ThemeIcon variant="light" size={30} className={classes.themeIcon}>
                         <Icon size="1.1rem" />
                       </ThemeIcon>
-                      <Box ml="md" className={isActive ? classes.activeText : classes.text } >{label}</Box>
+                      <Box ml="md" >{label}</Box>
                     </Box>
                   </Group>
                 </UnstyledButton>
-              )
+              // )
             }
           </NavLink>
+          :
+          <></>
       }
     </>
   );

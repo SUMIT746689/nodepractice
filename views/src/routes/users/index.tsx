@@ -1,6 +1,6 @@
 
 import PaginationExampleWithPageSizeSelector from "@/components/DataTableWrapper";
-import CreateOrUpdateData from "@/content/users/CreateOrUodateData";
+import CreateOrUpdateData from "@/content/users/CreateOrUpdateData";
 import { useAuthUserQuery } from "@/redux/services/auth";
 import { isErrorWithMessage, isFetchBaseQueryError } from "@/redux/services/helpers";
 import { useDeleteUserMutation, useGetAllUsersQuery } from "@/redux/services/user";
@@ -16,19 +16,11 @@ export default function UserIndex() {
 
   const { data: users } = useGetAllUsersQuery();
   const { data: authUser } = useAuthUserQuery();
-  console.log({ users })
   const [deleteUser] = useDeleteUserMutation();
-  // const {data:me,isLoading}= useAuthUserQuery();
-
 
   const [editUser, setEditUser] = useState<User>();
-  console.log({ editUser })
 
-  // const  handleClick = ()=>{ 
-  // refetch();
-  // }
-
-  const handleDelete = async (id: number): Promise<void> => {
+  const handleDelete = async (id: number): void => {
 
     try {
       const { data } = await deleteUser(id).unwrap()
