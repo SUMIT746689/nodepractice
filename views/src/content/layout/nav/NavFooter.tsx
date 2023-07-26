@@ -6,6 +6,7 @@ import {
   Avatar,
   Text,
   createStyles,
+  Badge,
 } from '@mantine/core';
 import { IconChevronRight } from '@tabler/icons-react';
 
@@ -43,8 +44,9 @@ export function NavFooter({ image, ...others }: UserButtonProps) {
 
         <div style={{ flex: 1 }}>
           <Text size="sm" weight={500}>
-            {[user?.first_name, user?.last_name].join(' ')}
+            {[user?.first_name, user?.last_name].join(' ')} 
           </Text>
+          <Badge>{user?.edges.role?.title}</Badge>
 
           <Text size="xs" className={classes.text}>
             {user?.email}
