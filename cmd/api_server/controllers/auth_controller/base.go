@@ -66,8 +66,8 @@ func Login(c *fiber.Ctx) error {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)
-	claims["identity"] = identity
-	claims["admin"] = true
+	claims["id"] = user_.ID
+	claims["role_id"] = user_.RoleID
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	t, err := token.SignedString([]byte("secret"))
@@ -79,11 +79,9 @@ func Login(c *fiber.Ctx) error {
 }
 
 func Me(c *fiber.Ctx) error {
-	usr := c.Locals("user").(*jwt.Token)
-	claim := usr.Claims.(jwt.MapClaims)
-	identity := claim["identity"].(string)
+	id, _ := pkg.GetAuthedUser(c)
 
-	_user, err := pkg.EntClient().User.Query().Where(user.Username(identity)).WithPermissions(func(query *ent.PermissionQuery) {
+	_user, err := pkg.EntClient().User.Query().Where(user.ID(id)).WithPermissions(func(query *ent.PermissionQuery) {
 		query.Select(permission.FieldValue)
 	}).WithRole(func(query *ent.RoleQuery) {
 		query.WithPermissions(func(query *ent.PermissionQuery) {
