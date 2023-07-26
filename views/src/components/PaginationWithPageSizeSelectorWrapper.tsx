@@ -1,5 +1,6 @@
+import { User } from '@/types/users';
 import { Paper } from '@mantine/core';
-import { DataTable } from 'mantine-datatable';
+import { DataTable, DataTableColumn } from 'mantine-datatable';
 import React, { ReactElement, useEffect, useState } from 'react';
 
 
@@ -9,7 +10,7 @@ interface HeadColumns {
   width?: number;
   title?: string | ReactElement;
   textAlignment?: string;
-  render?: (any)=>ReactElement;
+  render?: (arg: User)=>ReactElement;
   // render?: Function;
 }
 interface PaginateTableWrapper {
@@ -19,7 +20,7 @@ interface PaginateTableWrapper {
 
 const PAGE_SIZES = [10, 15, 20];
 
-const PaginationExampleWithPageSizeSelector: React.FC<PaginateTableWrapper> = ({ headColumns = [], datas = [] }) => {
+const PaginationWithPageSizeSelectorWrapper: React.FC<PaginateTableWrapper> = ({ headColumns = [], datas = [] }) => {
   const [pageSize, setPageSize] = useState(PAGE_SIZES[1]);
 
   useEffect(() => {
@@ -45,13 +46,7 @@ const PaginationExampleWithPageSizeSelector: React.FC<PaginateTableWrapper> = ({
         columns={headColumns}
         // columns={[
         //   { accessor: 'firstName', width: 100 },
-        //   { accessor: 'lastName', width: 100 },
-        //   { accessor: 'email', width: '100%' },
-        //   {
-        //     accessor: 'birthDate',
-        //     textAlignment: 'right',
-        //     width: 120,
-        //     // render: ({ birthDate }) => dayjs(birthDate).format('MMM D YYYY'),
+        // render: ({ birthDate }) => dayjs(birthDate).format('MMM D YYYY'),
         //   },
         // ]}
         totalRecords={datas.length}
@@ -66,4 +61,4 @@ const PaginationExampleWithPageSizeSelector: React.FC<PaginateTableWrapper> = ({
   );
 }
 
-export default PaginationExampleWithPageSizeSelector;
+export default PaginationWithPageSizeSelectorWrapper;

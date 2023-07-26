@@ -2,7 +2,7 @@ import { Box, Button, Grid, Group, LoadingOverlay, Modal, PasswordInput, Select,
 import React, { useEffect, useState } from "react";
 import { useForm } from '@mantine/form';
 import { usePostUserMutation, useUpdateUserMutation } from "@/redux/services/user";
-import { CreateUser, UpdateUserBody, User } from "@/types/users";
+import { User } from "@/types/users";
 import { AuthUser } from "@/types/auth";
 import { notifications } from "@mantine/notifications";
 import { useCreateUserPermitRoleQuery } from "@/redux/services/role";
@@ -13,6 +13,15 @@ interface CreateOrUodateDataInterFace {
   // eslint-disable-next-line @typescript-eslint/ban-types
   setEditData: Function;
   authUser: AuthUser | undefined;
+}
+
+interface CreateOrUodateFormInterFace {
+  username: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number: string;
+  role_id: string;
 }
 
 const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, authUser }) => {
@@ -84,46 +93,37 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles }) =>
 
   useEffect(() => {
     if (editData) {
-      form.setValues((prev) => ({ ...prev, ...editData,role_id: String(editData.role_id)}));
+      form.setValues((prev) => ({ ...prev, ...editData, role_id: String(editData.role_id) }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFormSubmit = async (values: CreateUser): Promise<void> => {
-    console.log({ values })
-    const customizeValues = {...values,role_id:Number(values.role_id)}
-    try {
-      if (editData) {
-        const payload = await updateUser({ user_id: editData.id, body: customizeValues });
-        console.log({payload});
-        // if (!error?.data) throw new Error(error.message);
-        // if (error) throw new Error(error.data);
-        notifications.show({ message: 'Sucessfully Updated' });
+  const handleFormSubmit = (values: CreateOrUodateFormInterFace): void => {
 
-      }
-      else {
-        const  payload = await createUser(customizeValues);
-        console.log({"cr payload": payload})
-        // if (!error?.data) throw new Error(error.message);
-        // if (error) throw new Error(error.data);
-        notifications.show({ message: 'Sucessfully Created' });
-      }
-
-      // refetch();
-      handleModalClose();
-    } catch (err) {
-      console.log({ err });
-      notifications.show({ message: err.message, color: 'red' });
+    const customizeValues = { ...values, role_id: Number(values.role_id) }
+    if (editData) {
+      updateUser({ user_id: editData.id, body: customizeValues })
+        .unwrap()
+        .then(() => {
+          notifications.show({ message: 'Sucessfully Updated' });
+          handleModalClose();
+        })
+        .catch((error: { data: string }) => { notifications.show({ message: error.data, color: 'red' }) })
     }
-
+    else {
+      createUser(customizeValues).unwrap()
+        .then(() => {
+          notifications.show({ message: 'Sucessfully Created' });
+          handleModalClose();
+        })
+        .catch((error: { data: string }) => { notifications.show({ message: error.data, color: 'red' }) })
+    }
   }
-  console.log({ roles })
-  console.log({ editData })
 
   return (
     <Box maw={500} mx="auto" pos="relative" px={40}>
       <LoadingOverlay visible={isCreateLoading || isUpdateLoading} overlayBlur={2} />
-      <form onSubmit={form.onSubmit((values: UpdateUserBody): object => handleFormSubmit(values))} >
+      <form onSubmit={form.onSubmit((values: CreateOrUodateFormInterFace): void => handleFormSubmit(values))} >
 
         <Grid grow gutter="xs">
           <Grid.Col span={4}>

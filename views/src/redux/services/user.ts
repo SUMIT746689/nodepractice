@@ -35,7 +35,7 @@ export const userApi = createApi({
       transformResponse: (response: GetAllUsersInterface) => response.users,
       providesTags: [{ type: "Users", id: "LIST" }],
     }),
-    postUser: builder.mutation<CreateUser, string>({
+    postUser: builder.mutation<User, CreateUser>({
       query: (body) => ({
         url: '/users',
         method: 'POST',
