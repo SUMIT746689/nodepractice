@@ -28,6 +28,10 @@ func Create(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnprocessableEntity)
 	}
 
+	if allowed := createUserGuard(c); !allowed {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
 	u, err := userrepo.Save(c.Context(), req)
 	if err != nil {
 		log.Println(err)
