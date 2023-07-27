@@ -2,11 +2,12 @@ package pkg
 
 import (
 	"context"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"pos/ent"
 	"pos/ent/user"
 	"pos/internal/domain"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func UserHasPermission(userID int, permission domain.USER_PERMISSION) bool {
@@ -52,12 +53,21 @@ func UserHasAllPermissions(userID int, permissions []domain.USER_PERMISSION) boo
 	for _, p := range usr.Edges.Role.Edges.Permissions {
 		allPermissions = append(allPermissions, p.Value)
 	}
+	println("allPermissions", allPermissions)
+	println("rePermissions", permissions)
 
-	//for _, permission := range permissions {
-	//
-	//}
-
-	return false
+	for _, requiredPermission := range permissions {
+		var isVerify = false
+		for _, permission := range allPermissions {
+			if permission == string(requiredPermission) {
+				isVerify = true
+			}
+		}
+		if !isVerify {
+			return false
+		}
+	}
+	return true
 }
 
 func GetAuthedUser(c *fiber.Ctx) (int, int) {

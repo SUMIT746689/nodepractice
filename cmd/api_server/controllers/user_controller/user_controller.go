@@ -2,6 +2,7 @@ package usercontroller
 
 import (
 	"log"
+	"pos/ent/role"
 	"pos/internal/app"
 	userrepo "pos/internal/repository/user_repo"
 	"pos/pkg"
@@ -10,13 +11,35 @@ import (
 )
 
 func Index(c *fiber.Ctx) error {
-	users_, err := pkg.EntClient().User.Query().Limit(10).All(c.Context())
+
+	_, roleID := pkg.GetAuthedUser(c)
+
+	role_, err := pkg.EntClient().Role.Query().Where(role.ID(roleID)).Only(c.Context())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
+	switch role_.Value {
+	case "SUPERADMIN":
+		users_, err := pkg.EntClient().Role.Query().Where(role.Value("ADMIN")).QueryUsers().All(c.Context())
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		return c.JSON(fiber.Map{
+			"users": users_,
+		})
+	case "ADMIN":
+		users_, err := pkg.EntClient().Role.Query().Where(role.Not(role.Value("SUPERADMIN")), role.Not(role.Value("ADMIN"))).QueryUsers().All(c.Context())
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		return c.JSON(fiber.Map{
+			"users": users_,
+		})
+	}
+	x := []string{}
 	return c.JSON(fiber.Map{
-		"users": users_,
+		"users": x,
 	})
 }
 
@@ -79,6 +102,10 @@ func Delete(c *fiber.Ctx) error {
 	userID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+
+	if allowed := deleteUserGuard(c, userID); !allowed {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
 	err = pkg.EntClient().User.DeleteOneID(userID).Exec(c.Context())

@@ -16,7 +16,7 @@ const ShowData:React.FC<ShowDataInterface> =({ setEditUser })=> {
 
   const { data: users } = useGetAllUsersQuery();
   const [deleteUser] = useDeleteUserMutation();
-
+  console.log({users})
   const handleDelete = (id: number): void => {
     deleteUser(id).unwrap()
       .then(() => { notifications.show({ message: 'deleted successfully', }) })

@@ -119,11 +119,12 @@ func CreateRole(c *fiber.Ctx) error {
 }
 
 func IndexRole(c *fiber.Ctx) error {
-	usr := c.Locals("user").(*jwt.Token)
-	claim := usr.Claims.(jwt.MapClaims)
-	identity := claim["identity"].(string)
 
-	user, err := pkg.EntClient().User.Query().Where(user.Username(identity)).QueryRole().Only(c.Context())
+	userID, _ := pkg.GetAuthedUser(c)
+
+	user, err := pkg.EntClient().User.Query().Where(user.ID(userID)).QueryRole().Only(c.Context())
+
+	log.Println("USER", user.Value)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -142,14 +143,7 @@ func IndexRole(c *fiber.Ctx) error {
 		}
 		return c.JSON(all)
 	default:
-		return c.JSON("[]")
+		var defaultVal = make([]string, 0)
+		return c.JSON(defaultVal)
 	}
-
-	// all, err := pkg.EntClient().Role.Query().All(c.Context())
-
-	// if err != nil {
-	// 	return c.SendStatus(fiber.StatusUnprocessableEntity)
-	// }
-
-	// return c.JSON(all)
 }

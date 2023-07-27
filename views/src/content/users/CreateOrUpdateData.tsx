@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from '@mantine/form';
 import { usePostUserMutation, useUpdateUserMutation } from "@/redux/services/user";
 import { User } from "@/types/users";
-import { AuthUser } from "@/types/auth";
+// import { AuthUser } from "@/types/auth";
 import { notifications } from "@mantine/notifications";
 import { useCreateUserPermitRoleQuery } from "@/redux/services/role";
 import { Role } from "@/types/role";
@@ -12,7 +12,7 @@ interface CreateOrUodateDataInterFace {
   editData: User | null | undefined;
   // eslint-disable-next-line @typescript-eslint/ban-types
   setEditData: Function;
-  authUser: AuthUser | undefined;
+  // authUser: AuthUser | undefined;
 }
 
 interface CreateOrUodateFormInterFace {
@@ -24,16 +24,12 @@ interface CreateOrUodateFormInterFace {
   role_id: string;
 }
 
-const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData, authUser }) => {
+const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData }) => {
 
-  console.log({ authUser })
+ 
   const [open, setOpen] = useState(false);
   const { data: roles } = useCreateUserPermitRoleQuery();
-  // if (authUser) {
-  //   const { edges: { role: { edges: {permissions = [] } = undefined } = undefined } = undefined } = authUser;
-  //   console.log({ permissions })
-  // }
-
+  console.log({roles})
   useEffect(() => {
     if (editData) setOpen(true);
   }, [editData]);

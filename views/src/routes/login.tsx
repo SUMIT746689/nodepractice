@@ -5,7 +5,7 @@ import { useLoginUserMutation } from "@/redux/services/auth";
 import { Loader } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import React from "react";
-import { Form, redirect, useNavigate } from "react-router-dom";
+import { Form, useNavigate } from "react-router-dom";
 
 
 interface FormElements extends HTMLInputElement {

@@ -69,7 +69,7 @@ export function NavbarNested() {
   const { classes } = useStyles();
   const { data: userAuth, isLoading } = useAuthUserQuery();
   // const links = navItems.map((item) => <LinksGroup {...item} key={item.label} />);
-  const permissions = userAuth?.edges?.role?.edges?.permissions.map(permission => permission.value) || [];
+  const permissions = userAuth?.edges?.role?.edges?.permissions?.map(permission => permission.value) || [];
   return (
     <Navbar height={800} width={{ sm: 300 }} p="md" className={classes.navbar}>
       <Navbar.Section className={classes.header}>
