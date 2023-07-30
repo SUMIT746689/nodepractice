@@ -32,6 +32,7 @@ const ShowData:React.FC<ShowDataInterface> =({ setEditUser })=> {
           { accessor: 'last_name' },
           { accessor: 'username' },
           { accessor: 'email' },
+          // { accessor: 'role.title' },
           { accessor: 'phone_number' },
           {
             accessor: 'actions',
