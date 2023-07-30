@@ -22,6 +22,7 @@ func (User) Fields() []ent.Field {
 		field.String("phone_number").Optional(),
 		field.String("email").Optional(),
 		field.Int("role_id"),
+		field.Int("company_id"),
 	}
 }
 
@@ -30,6 +31,7 @@ func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("permissions", Permission.Type),
 		edge.From("role", Role.Type).Ref("users").Unique().Field("role_id").Required(),
+		edge.From("company", Company.Type).Ref("users").Unique().Field("company_id").Required(),
 	}
 }
 

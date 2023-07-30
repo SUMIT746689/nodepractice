@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"pos/ent/company"
 	"pos/ent/permission"
 	"pos/ent/role"
 	"pos/ent/user"
@@ -108,6 +109,12 @@ func (uc *UserCreate) SetRoleID(i int) *UserCreate {
 	return uc
 }
 
+// SetCompanyID sets the "company_id" field.
+func (uc *UserCreate) SetCompanyID(i int) *UserCreate {
+	uc.mutation.SetCompanyID(i)
+	return uc
+}
+
 // AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
 func (uc *UserCreate) AddPermissionIDs(ids ...int) *UserCreate {
 	uc.mutation.AddPermissionIDs(ids...)
@@ -126,6 +133,11 @@ func (uc *UserCreate) AddPermissions(p ...*Permission) *UserCreate {
 // SetRole sets the "role" edge to the Role entity.
 func (uc *UserCreate) SetRole(r *Role) *UserCreate {
 	return uc.SetRoleID(r.ID)
+}
+
+// SetCompany sets the "company" edge to the Company entity.
+func (uc *UserCreate) SetCompany(c *Company) *UserCreate {
+	return uc.SetCompanyID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -211,8 +223,14 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.RoleID(); !ok {
 		return &ValidationError{Name: "role_id", err: errors.New(`ent: missing required field "User.role_id"`)}
 	}
+	if _, ok := uc.mutation.CompanyID(); !ok {
+		return &ValidationError{Name: "company_id", err: errors.New(`ent: missing required field "User.company_id"`)}
+	}
 	if _, ok := uc.mutation.RoleID(); !ok {
 		return &ValidationError{Name: "role", err: errors.New(`ent: missing required edge "User.role"`)}
+	}
+	if _, ok := uc.mutation.CompanyID(); !ok {
+		return &ValidationError{Name: "company", err: errors.New(`ent: missing required edge "User.company"`)}
 	}
 	return nil
 }
@@ -303,6 +321,23 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.RoleID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CompanyID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

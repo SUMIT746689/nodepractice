@@ -1,5 +1,5 @@
 import { Navbar, Group, Code, ScrollArea, createStyles, rem, NavLink, LoadingOverlay } from '@mantine/core';
-import { IconActivity } from '@tabler/icons-react';
+import { IconActivity, IconDashboard, IconUserCircle, IconUsers } from '@tabler/icons-react';
 import { Logo } from './Logo';
 import NavHeader from './NavHeader';
 import { NavFooter } from './NavFooter';
@@ -81,16 +81,16 @@ export function NavbarNested() {
           <LoadingOverlay loaderProps={{ size: 'sm', color: 'orange', variant: 'bars' }} visible={isLoading} />
           :
           <>
-            <CustomNavLink label="dashboard" icon={<IconActivity />} >
+            {/* <CustomNavLink label="dashboard" icon={<IconActivity />} > */}
               <RouterNavLink to="/dashboard" className={" no-underline"} >
                 {({ isActive }) => (
-                  <CustomNavLink label="dashboard" icon={<IconActivity />} isActive={isActive} />
+                  <CustomNavLink label="dashboard" icon={<IconDashboard/>} isActive={isActive} />
                 )}
               </RouterNavLink>
-            </CustomNavLink>
+            {/* </CustomNavLink> */}
             <RouterNavLink to="/users" className={permisionsVerify(["create_user"], permissions) ? "no-underline" : "hidden"}>
               {({ isActive }) => (
-                <CustomNavLink label="users" icon={<IconActivity />} isActive={isActive} />
+                <CustomNavLink label="users" icon={<IconUsers />} isActive={isActive} />
               )}
             </RouterNavLink>
           </>
@@ -99,9 +99,7 @@ export function NavbarNested() {
       </Navbar.Section>
 
       <Navbar.Section className={classes.footer}>
-        <NavFooter
-          image="https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=255&q=80"
-        />
+        <NavFooter/>
       </Navbar.Section>
     </Navbar>
   );

@@ -18,3 +18,6 @@ atlas migrate diff migration_name --dir "file://ent/migrate/migrations" --to "en
 <!-- hash first then migration for mehedi  -->
 # apply the migration
 atlas migrate apply --dir "file://ent/migrate/migrations" --url "mysql://root:mypassword@127.0.0.1/pos_online?parseTime=true"
+
+<!-- for create new scheme file -->
+go run -mod=mod entgo.io/ent/cmd/ent new SchemaName

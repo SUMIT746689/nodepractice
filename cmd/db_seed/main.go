@@ -24,8 +24,11 @@ func main() {
 	deleteCashierUserPermission := pkg.EntClient().Permission.Create().SetTitle("Delete Cashier User").SetValue("delete_cashier_user").SaveX(context.Background())
 	deleteCustomerUserPermission := pkg.EntClient().Permission.Create().SetTitle("Delete Customer User").SetValue("delete_customer_user").SaveX(context.Background())
 
+	// superAdminCompany := pkg.EntClient().Company.Create().SetName("Elitbuzz Technologies Ltd.")
+
 	saRole := pkg.EntClient().Role.Create().SetTitle("Superadmin").SetValue("SUPERADMIN").SaveX(context.Background())
 	saRole.Update().AddPermissions(createUserPermission, createAdminUserPermission, deleteUserPermission, deleteAdminUserPermission).ExecX(context.Background())
+	// saRole.Update().AddPermissions(createUserPermission, createAdminUserPermission, deleteUserPermission, deleteAdminUserPermission).AddCompanys(superAdminCompany).ExecX(context.Background())
 
 	superadmin := pkg.EntClient().User.Create().SetFirstName("super").SetLastName("admin").
 		SetUsername("superadmin").SetPassword(pkg.Hash("password")).SetRoleID(saRole.ID).

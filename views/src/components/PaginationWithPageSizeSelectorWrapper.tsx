@@ -1,20 +1,20 @@
-import { User } from '@/types/users';
+// import { User } from '@/types/users';
 import { Paper } from '@mantine/core';
-import { DataTable, DataTableColumn } from 'mantine-datatable';
-import React, { ReactElement, useEffect, useState } from 'react';
+import { DataTable } from 'mantine-datatable';
+import React, { useEffect, useState } from 'react';
 
 
 
-interface HeadColumns {
-  accessor: string ;
-  width?: number;
-  title?: string | ReactElement;
-  textAlignment?: string;
-  render?: (arg: User)=>ReactElement;
-  // render?: Function;
-}
+// interface HeadColumns {
+//   accessor: string;
+//   width?: number;
+//   title?: string | ReactElement;
+//   textAlignment?: string;
+//   render?: (arg: User) => ReactElement;
+//   // render?: Function;
+// }
 interface PaginateTableWrapper {
-  headColumns: HeadColumns[] | [];
+  headColumns: any[];
   datas: object[] | [undefined];
 }
 
@@ -28,7 +28,7 @@ const PaginationWithPageSizeSelectorWrapper: React.FC<PaginateTableWrapper> = ({
   }, [pageSize]);
 
   const [page, setPage] = useState(1);
-  const [records, setRecords] = useState(datas.slice(0, pageSize));
+  const [records, setRecords] = useState<any[]>(datas.slice(0, pageSize));
 
   useEffect(() => {
     const from = (page - 1) * pageSize;

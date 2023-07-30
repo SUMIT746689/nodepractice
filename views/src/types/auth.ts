@@ -13,6 +13,7 @@ export interface AuthUser {
   email?: string;
   phone_number?: string;
   role_id: number,
+  photo?:string;
   edges: {
     role: Role
   }

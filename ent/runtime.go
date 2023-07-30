@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"pos/ent/company"
 	"pos/ent/permission"
 	"pos/ent/role"
 	"pos/ent/schema"
@@ -14,6 +15,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	companyFields := schema.Company{}.Fields()
+	_ = companyFields
+	// companyDescName is the schema descriptor for name field.
+	companyDescName := companyFields[0].Descriptor()
+	// company.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	company.NameValidator = companyDescName.Validators[0].(func(string) error)
+	// companyDescDomain is the schema descriptor for domain field.
+	companyDescDomain := companyFields[1].Descriptor()
+	// company.DomainValidator is a validator for the "domain" field. It is called by the builders before save.
+	company.DomainValidator = companyDescDomain.Validators[0].(func(string) error)
 	permissionFields := schema.Permission{}.Fields()
 	_ = permissionFields
 	// permissionDescTitle is the schema descriptor for title field.

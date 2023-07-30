@@ -1,4 +1,4 @@
-import { useAuthUserQuery} from '@/redux/services/auth';
+import { useAuthUserQuery } from '@/redux/services/auth';
 import {
   UnstyledButton,
   UnstyledButtonProps,
@@ -8,7 +8,7 @@ import {
   createStyles,
   Badge,
 } from '@mantine/core';
-import { IconChevronRight } from '@tabler/icons-react';
+import { IconChevronRight, IconUserCircle } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
   user: {
@@ -28,23 +28,26 @@ const useStyles = createStyles((theme) => ({
   }
 }));
 
-interface UserButtonProps extends UnstyledButtonProps {
-  image: string;
-}
+export function NavFooter({...others }: UnstyledButtonProps) {
 
-export function NavFooter({ image, ...others }: UserButtonProps) {
-  
   const { classes } = useStyles();
-  const {data:user}=useAuthUserQuery();
-  
+  const { data: user } = useAuthUserQuery();
+
   return (
     <UnstyledButton className={classes.user} {...others}>
       <Group>
-        <Avatar src={image} radius="xl" />
+        {
+          user?.photo ?
+            <Avatar src={user?.photo} radius="xl" />
+            :
+            <Avatar color="orange" radius="sm">
+              <IconUserCircle size="1.5rem" />
+            </Avatar>
+        }
 
         <div style={{ flex: 1 }}>
           <Text size="sm" weight={500}>
-            {[user?.first_name, user?.last_name].join(' ')} 
+            {[user?.first_name, user?.last_name].join(' ')}
           </Text>
           <Badge>{user?.edges.role?.title}</Badge>
 

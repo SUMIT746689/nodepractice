@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"pos/ent/company"
 	"pos/ent/permission"
 	"pos/ent/predicate"
 	"pos/ent/role"
@@ -106,6 +107,12 @@ func (uu *UserUpdate) SetRoleID(i int) *UserUpdate {
 	return uu
 }
 
+// SetCompanyID sets the "company_id" field.
+func (uu *UserUpdate) SetCompanyID(i int) *UserUpdate {
+	uu.mutation.SetCompanyID(i)
+	return uu
+}
+
 // AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
 func (uu *UserUpdate) AddPermissionIDs(ids ...int) *UserUpdate {
 	uu.mutation.AddPermissionIDs(ids...)
@@ -124,6 +131,11 @@ func (uu *UserUpdate) AddPermissions(p ...*Permission) *UserUpdate {
 // SetRole sets the "role" edge to the Role entity.
 func (uu *UserUpdate) SetRole(r *Role) *UserUpdate {
 	return uu.SetRoleID(r.ID)
+}
+
+// SetCompany sets the "company" edge to the Company entity.
+func (uu *UserUpdate) SetCompany(c *Company) *UserUpdate {
+	return uu.SetCompanyID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -155,6 +167,12 @@ func (uu *UserUpdate) RemovePermissions(p ...*Permission) *UserUpdate {
 // ClearRole clears the "role" edge to the Role entity.
 func (uu *UserUpdate) ClearRole() *UserUpdate {
 	uu.mutation.ClearRole()
+	return uu
+}
+
+// ClearCompany clears the "company" edge to the Company entity.
+func (uu *UserUpdate) ClearCompany() *UserUpdate {
+	uu.mutation.ClearCompany()
 	return uu
 }
 
@@ -213,6 +231,9 @@ func (uu *UserUpdate) check() error {
 	}
 	if _, ok := uu.mutation.RoleID(); uu.mutation.RoleCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "User.role"`)
+	}
+	if _, ok := uu.mutation.CompanyID(); uu.mutation.CompanyCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.company"`)
 	}
 	return nil
 }
@@ -330,6 +351,35 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
+	if uu.mutation.CompanyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -426,6 +476,12 @@ func (uuo *UserUpdateOne) SetRoleID(i int) *UserUpdateOne {
 	return uuo
 }
 
+// SetCompanyID sets the "company_id" field.
+func (uuo *UserUpdateOne) SetCompanyID(i int) *UserUpdateOne {
+	uuo.mutation.SetCompanyID(i)
+	return uuo
+}
+
 // AddPermissionIDs adds the "permissions" edge to the Permission entity by IDs.
 func (uuo *UserUpdateOne) AddPermissionIDs(ids ...int) *UserUpdateOne {
 	uuo.mutation.AddPermissionIDs(ids...)
@@ -444,6 +500,11 @@ func (uuo *UserUpdateOne) AddPermissions(p ...*Permission) *UserUpdateOne {
 // SetRole sets the "role" edge to the Role entity.
 func (uuo *UserUpdateOne) SetRole(r *Role) *UserUpdateOne {
 	return uuo.SetRoleID(r.ID)
+}
+
+// SetCompany sets the "company" edge to the Company entity.
+func (uuo *UserUpdateOne) SetCompany(c *Company) *UserUpdateOne {
+	return uuo.SetCompanyID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -475,6 +536,12 @@ func (uuo *UserUpdateOne) RemovePermissions(p ...*Permission) *UserUpdateOne {
 // ClearRole clears the "role" edge to the Role entity.
 func (uuo *UserUpdateOne) ClearRole() *UserUpdateOne {
 	uuo.mutation.ClearRole()
+	return uuo
+}
+
+// ClearCompany clears the "company" edge to the Company entity.
+func (uuo *UserUpdateOne) ClearCompany() *UserUpdateOne {
+	uuo.mutation.ClearCompany()
 	return uuo
 }
 
@@ -546,6 +613,9 @@ func (uuo *UserUpdateOne) check() error {
 	}
 	if _, ok := uuo.mutation.RoleID(); uuo.mutation.RoleCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "User.role"`)
+	}
+	if _, ok := uuo.mutation.CompanyID(); uuo.mutation.CompanyCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.company"`)
 	}
 	return nil
 }
@@ -673,6 +743,35 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if uuo.mutation.CompanyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

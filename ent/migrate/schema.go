@@ -8,6 +8,18 @@ import (
 )
 
 var (
+	// CompaniesColumns holds the columns for the "companies" table.
+	CompaniesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "name", Type: field.TypeString, Size: 50},
+		{Name: "domain", Type: field.TypeString, Nullable: true, Size: 50},
+	}
+	// CompaniesTable holds the schema information for the "companies" table.
+	CompaniesTable = &schema.Table{
+		Name:       "companies",
+		Columns:    CompaniesColumns,
+		PrimaryKey: []*schema.Column{CompaniesColumns[0]},
+	}
 	// PermissionsColumns holds the columns for the "permissions" table.
 	PermissionsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -46,6 +58,7 @@ var (
 		{Name: "password", Type: field.TypeString},
 		{Name: "phone_number", Type: field.TypeString, Nullable: true},
 		{Name: "email", Type: field.TypeString, Nullable: true},
+		{Name: "company_id", Type: field.TypeInt},
 		{Name: "role_id", Type: field.TypeInt},
 	}
 	// UsersTable holds the schema information for the "users" table.
@@ -55,8 +68,14 @@ var (
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "users_roles_users",
+				Symbol:     "users_companies_users",
 				Columns:    []*schema.Column{UsersColumns[9]},
+				RefColumns: []*schema.Column{CompaniesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+			{
+				Symbol:     "users_roles_users",
+				Columns:    []*schema.Column{UsersColumns[10]},
 				RefColumns: []*schema.Column{RolesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -114,6 +133,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		CompaniesTable,
 		PermissionsTable,
 		RolesTable,
 		UsersTable,
@@ -123,7 +143,8 @@ var (
 )
 
 func init() {
-	UsersTable.ForeignKeys[0].RefTable = RolesTable
+	UsersTable.ForeignKeys[0].RefTable = CompaniesTable
+	UsersTable.ForeignKeys[1].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[0].RefTable = RolesTable
 	RolePermissionsTable.ForeignKeys[1].RefTable = PermissionsTable
 	UserPermissionsTable.ForeignKeys[0].RefTable = UsersTable

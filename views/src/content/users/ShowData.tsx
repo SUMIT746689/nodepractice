@@ -9,14 +9,15 @@ import React from "react";
 
 interface ShowDataInterface {
   // setEditUser: React.Component<User,User>
-  setEditUser: any;
-} 
+  // setEditUser: any;
+  addEditData: (arg: User) => void;
+}
 
-const ShowData:React.FC<ShowDataInterface> =({ setEditUser })=> {
+const ShowData: React.FC<ShowDataInterface> = ({ addEditData }) => {
 
   const { data: users } = useGetAllUsersQuery();
   const [deleteUser] = useDeleteUserMutation();
-  console.log({users})
+  console.log({ users })
   const handleDelete = (id: number): void => {
     deleteUser(id).unwrap()
       .then(() => { notifications.show({ message: 'deleted successfully', }) })
@@ -40,8 +41,7 @@ const ShowData:React.FC<ShowDataInterface> =({ setEditUser })=> {
             textAlignment: 'right',
             render: (data: User) => (
               <Group spacing={4} position="right" noWrap>
-                {/* // eslint-disable-next-line @typescript-eslint/no-unsafe-return */}
-                <ActionIcon color="sky" onClick={() => setEditUser(data)}>
+                <ActionIcon color="sky" onClick={() => addEditData(data)}>
                   <IconEdit size={20} />
                 </ActionIcon>
                 <ActionIcon color="red" onClick={() => handleDelete(data.id)}>
