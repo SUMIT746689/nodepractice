@@ -10,10 +10,6 @@ import (
 )
 
 func main() {
-	if err := pkg.LoadENV(".env"); err != nil {
-		panic(err)
-	}
-
 	config.InitAuthConfig()
 
 	pkg.InitEnt()
