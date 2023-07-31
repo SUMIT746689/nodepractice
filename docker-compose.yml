@@ -8,5 +8,6 @@ services:
     volumes:
       - "./:/app"
     environment:
+      - APP_ENV=${APP_ENV}
       - DB_URL=${DB_URL}
     network_mode: "host"
