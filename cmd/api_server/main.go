@@ -24,6 +24,7 @@ func main() {
 	v1 := api.Group("/v1")
 
 	v1.Mount("", routes.AuthRoutes())
+	v1.Mount("", routes.CompanyRoutes())
 	v1.Mount("", routes.UserRoutes())
 	v1.Mount("", routes.AuthorizationRoutes())
 

@@ -12,7 +12,7 @@ atlas migrate diff migration_name --dir "file://ent/migrate/migrations" --to "en
 
 and if you don't have docker then run this command
 ```
-atlas migrate diff migration_name --dir "file://ent/migrate/migrations" --to "ent://ent/schema" --dev-url "mysql://root:root@127.0.0.1/pos_online_atlas?parseTime=true"
+atlas migrate diff changed_db --dir "file://ent/migrate/migrations" --to "ent://ent/schema" --dev-url "mysql://root:mypassword@127.0.0.1/pos_online_atlas?parseTime=true"
 ```
 
 <!-- hash first then migration for mehedi  -->
@@ -21,3 +21,6 @@ atlas migrate apply --dir "file://ent/migrate/migrations" --url "mysql://root:my
 
 <!-- for create new scheme file -->
 go run -mod=mod entgo.io/ent/cmd/ent new SchemaName
+
+<!-- for seed -->
+go run cmd/db_seed/main.go

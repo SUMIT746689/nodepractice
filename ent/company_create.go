@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"pos/ent/company"
 	"pos/ent/user"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -20,6 +21,34 @@ type CompanyCreate struct {
 	hooks    []Hook
 }
 
+// SetCreateTime sets the "create_time" field.
+func (cc *CompanyCreate) SetCreateTime(t time.Time) *CompanyCreate {
+	cc.mutation.SetCreateTime(t)
+	return cc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (cc *CompanyCreate) SetNillableCreateTime(t *time.Time) *CompanyCreate {
+	if t != nil {
+		cc.SetCreateTime(*t)
+	}
+	return cc
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (cc *CompanyCreate) SetUpdateTime(t time.Time) *CompanyCreate {
+	cc.mutation.SetUpdateTime(t)
+	return cc
+}
+
+// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
+func (cc *CompanyCreate) SetNillableUpdateTime(t *time.Time) *CompanyCreate {
+	if t != nil {
+		cc.SetUpdateTime(*t)
+	}
+	return cc
+}
+
 // SetName sets the "name" field.
 func (cc *CompanyCreate) SetName(s string) *CompanyCreate {
 	cc.mutation.SetName(s)
@@ -29,14 +58,6 @@ func (cc *CompanyCreate) SetName(s string) *CompanyCreate {
 // SetDomain sets the "domain" field.
 func (cc *CompanyCreate) SetDomain(s string) *CompanyCreate {
 	cc.mutation.SetDomain(s)
-	return cc
-}
-
-// SetNillableDomain sets the "domain" field if the given value is not nil.
-func (cc *CompanyCreate) SetNillableDomain(s *string) *CompanyCreate {
-	if s != nil {
-		cc.SetDomain(*s)
-	}
 	return cc
 }
 
@@ -62,6 +83,7 @@ func (cc *CompanyCreate) Mutation() *CompanyMutation {
 
 // Save creates the Company in the database.
 func (cc *CompanyCreate) Save(ctx context.Context) (*Company, error) {
+	cc.defaults()
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -87,8 +109,26 @@ func (cc *CompanyCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cc *CompanyCreate) defaults() {
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		v := company.DefaultCreateTime()
+		cc.mutation.SetCreateTime(v)
+	}
+	if _, ok := cc.mutation.UpdateTime(); !ok {
+		v := company.DefaultUpdateTime()
+		cc.mutation.SetUpdateTime(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cc *CompanyCreate) check() error {
+	if _, ok := cc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Company.create_time"`)}
+	}
+	if _, ok := cc.mutation.UpdateTime(); !ok {
+		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "Company.update_time"`)}
+	}
 	if _, ok := cc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Company.name"`)}
 	}
@@ -96,6 +136,9 @@ func (cc *CompanyCreate) check() error {
 		if err := company.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Company.name": %w`, err)}
 		}
+	}
+	if _, ok := cc.mutation.Domain(); !ok {
+		return &ValidationError{Name: "domain", err: errors.New(`ent: missing required field "Company.domain"`)}
 	}
 	if v, ok := cc.mutation.Domain(); ok {
 		if err := company.DomainValidator(v); err != nil {
@@ -128,6 +171,14 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 		_node = &Company{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(company.Table, sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt))
 	)
+	if value, ok := cc.mutation.CreateTime(); ok {
+		_spec.SetField(company.FieldCreateTime, field.TypeTime, value)
+		_node.CreateTime = value
+	}
+	if value, ok := cc.mutation.UpdateTime(); ok {
+		_spec.SetField(company.FieldUpdateTime, field.TypeTime, value)
+		_node.UpdateTime = value
+	}
 	if value, ok := cc.mutation.Name(); ok {
 		_spec.SetField(company.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -169,6 +220,7 @@ func (ccb *CompanyCreateBulk) Save(ctx context.Context) ([]*Company, error) {
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*CompanyMutation)
 				if !ok {

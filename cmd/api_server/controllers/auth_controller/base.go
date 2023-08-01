@@ -43,10 +43,12 @@ func Login(c *fiber.Ctx) error {
 
 	identity := req.Identity
 	pass := req.Password
+	println("req", identity, "pass", pass)
 
-	exists, err := pkg.EntClient().User.Query().Where(user.Username(identity)).Exist(c.Context())
+	exists, err := pkg.EntClient().User.Query().Where(user.Username("admin")).Exist(c.Context())
+	println("exists", exists)
 	if err != nil {
-		log.Println(err)
+		log.Println("exists", err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	if !exists {
@@ -54,6 +56,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	user_, err := pkg.EntClient().User.Query().Where(user.Username(identity)).Only(c.Context())
+	log.Println("user", user_)
 	if err != nil {
 		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)

@@ -15,8 +15,21 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	companyMixin := schema.Company{}.Mixin()
+	companyMixinFields0 := companyMixin[0].Fields()
+	_ = companyMixinFields0
 	companyFields := schema.Company{}.Fields()
 	_ = companyFields
+	// companyDescCreateTime is the schema descriptor for create_time field.
+	companyDescCreateTime := companyMixinFields0[0].Descriptor()
+	// company.DefaultCreateTime holds the default value on creation for the create_time field.
+	company.DefaultCreateTime = companyDescCreateTime.Default.(func() time.Time)
+	// companyDescUpdateTime is the schema descriptor for update_time field.
+	companyDescUpdateTime := companyMixinFields0[1].Descriptor()
+	// company.DefaultUpdateTime holds the default value on creation for the update_time field.
+	company.DefaultUpdateTime = companyDescUpdateTime.Default.(func() time.Time)
+	// company.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	company.UpdateDefaultUpdateTime = companyDescUpdateTime.UpdateDefault.(func() time.Time)
 	// companyDescName is the schema descriptor for name field.
 	companyDescName := companyFields[0].Descriptor()
 	// company.NameValidator is a validator for the "name" field. It is called by the builders before save.

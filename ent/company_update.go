@@ -9,6 +9,7 @@ import (
 	"pos/ent/company"
 	"pos/ent/predicate"
 	"pos/ent/user"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -28,6 +29,12 @@ func (cu *CompanyUpdate) Where(ps ...predicate.Company) *CompanyUpdate {
 	return cu
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (cu *CompanyUpdate) SetUpdateTime(t time.Time) *CompanyUpdate {
+	cu.mutation.SetUpdateTime(t)
+	return cu
+}
+
 // SetName sets the "name" field.
 func (cu *CompanyUpdate) SetName(s string) *CompanyUpdate {
 	cu.mutation.SetName(s)
@@ -37,20 +44,6 @@ func (cu *CompanyUpdate) SetName(s string) *CompanyUpdate {
 // SetDomain sets the "domain" field.
 func (cu *CompanyUpdate) SetDomain(s string) *CompanyUpdate {
 	cu.mutation.SetDomain(s)
-	return cu
-}
-
-// SetNillableDomain sets the "domain" field if the given value is not nil.
-func (cu *CompanyUpdate) SetNillableDomain(s *string) *CompanyUpdate {
-	if s != nil {
-		cu.SetDomain(*s)
-	}
-	return cu
-}
-
-// ClearDomain clears the value of the "domain" field.
-func (cu *CompanyUpdate) ClearDomain() *CompanyUpdate {
-	cu.mutation.ClearDomain()
 	return cu
 }
 
@@ -97,6 +90,7 @@ func (cu *CompanyUpdate) RemoveUsers(u ...*User) *CompanyUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (cu *CompanyUpdate) Save(ctx context.Context) (int, error) {
+	cu.defaults()
 	return withHooks(ctx, cu.sqlSave, cu.mutation, cu.hooks)
 }
 
@@ -119,6 +113,14 @@ func (cu *CompanyUpdate) Exec(ctx context.Context) error {
 func (cu *CompanyUpdate) ExecX(ctx context.Context) {
 	if err := cu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (cu *CompanyUpdate) defaults() {
+	if _, ok := cu.mutation.UpdateTime(); !ok {
+		v := company.UpdateDefaultUpdateTime()
+		cu.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -149,14 +151,14 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := cu.mutation.UpdateTime(); ok {
+		_spec.SetField(company.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := cu.mutation.Name(); ok {
 		_spec.SetField(company.FieldName, field.TypeString, value)
 	}
 	if value, ok := cu.mutation.Domain(); ok {
 		_spec.SetField(company.FieldDomain, field.TypeString, value)
-	}
-	if cu.mutation.DomainCleared() {
-		_spec.ClearField(company.FieldDomain, field.TypeString)
 	}
 	if cu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -223,6 +225,12 @@ type CompanyUpdateOne struct {
 	mutation *CompanyMutation
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (cuo *CompanyUpdateOne) SetUpdateTime(t time.Time) *CompanyUpdateOne {
+	cuo.mutation.SetUpdateTime(t)
+	return cuo
+}
+
 // SetName sets the "name" field.
 func (cuo *CompanyUpdateOne) SetName(s string) *CompanyUpdateOne {
 	cuo.mutation.SetName(s)
@@ -232,20 +240,6 @@ func (cuo *CompanyUpdateOne) SetName(s string) *CompanyUpdateOne {
 // SetDomain sets the "domain" field.
 func (cuo *CompanyUpdateOne) SetDomain(s string) *CompanyUpdateOne {
 	cuo.mutation.SetDomain(s)
-	return cuo
-}
-
-// SetNillableDomain sets the "domain" field if the given value is not nil.
-func (cuo *CompanyUpdateOne) SetNillableDomain(s *string) *CompanyUpdateOne {
-	if s != nil {
-		cuo.SetDomain(*s)
-	}
-	return cuo
-}
-
-// ClearDomain clears the value of the "domain" field.
-func (cuo *CompanyUpdateOne) ClearDomain() *CompanyUpdateOne {
-	cuo.mutation.ClearDomain()
 	return cuo
 }
 
@@ -305,6 +299,7 @@ func (cuo *CompanyUpdateOne) Select(field string, fields ...string) *CompanyUpda
 
 // Save executes the query and returns the updated Company entity.
 func (cuo *CompanyUpdateOne) Save(ctx context.Context) (*Company, error) {
+	cuo.defaults()
 	return withHooks(ctx, cuo.sqlSave, cuo.mutation, cuo.hooks)
 }
 
@@ -327,6 +322,14 @@ func (cuo *CompanyUpdateOne) Exec(ctx context.Context) error {
 func (cuo *CompanyUpdateOne) ExecX(ctx context.Context) {
 	if err := cuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (cuo *CompanyUpdateOne) defaults() {
+	if _, ok := cuo.mutation.UpdateTime(); !ok {
+		v := company.UpdateDefaultUpdateTime()
+		cuo.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -374,14 +377,14 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 			}
 		}
 	}
+	if value, ok := cuo.mutation.UpdateTime(); ok {
+		_spec.SetField(company.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := cuo.mutation.Name(); ok {
 		_spec.SetField(company.FieldName, field.TypeString, value)
 	}
 	if value, ok := cuo.mutation.Domain(); ok {
 		_spec.SetField(company.FieldDomain, field.TypeString, value)
-	}
-	if cuo.mutation.DomainCleared() {
-		_spec.ClearField(company.FieldDomain, field.TypeString)
 	}
 	if cuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{

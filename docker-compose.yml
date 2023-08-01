@@ -10,4 +10,5 @@ services:
     environment:
       - APP_ENV=${APP_ENV}
       - DB_URL=${DB_URL}
-    network_mode: "host"
+    ports:
+      - 8080:8080

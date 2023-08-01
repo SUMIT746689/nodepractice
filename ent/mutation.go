@@ -39,6 +39,8 @@ type CompanyMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	create_time   *time.Time
+	update_time   *time.Time
 	name          *string
 	domain        *string
 	clearedFields map[string]struct{}
@@ -148,6 +150,78 @@ func (m *CompanyMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
+// SetCreateTime sets the "create_time" field.
+func (m *CompanyMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *CompanyMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *CompanyMutation) ResetCreateTime() {
+	m.create_time = nil
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *CompanyMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *CompanyMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the Company entity.
+// If the Company object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CompanyMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *CompanyMutation) ResetUpdateTime() {
+	m.update_time = nil
+}
+
 // SetName sets the "name" field.
 func (m *CompanyMutation) SetName(s string) {
 	m.name = &s
@@ -215,22 +289,9 @@ func (m *CompanyMutation) OldDomain(ctx context.Context) (v string, err error) {
 	return oldValue.Domain, nil
 }
 
-// ClearDomain clears the value of the "domain" field.
-func (m *CompanyMutation) ClearDomain() {
-	m.domain = nil
-	m.clearedFields[company.FieldDomain] = struct{}{}
-}
-
-// DomainCleared returns if the "domain" field was cleared in this mutation.
-func (m *CompanyMutation) DomainCleared() bool {
-	_, ok := m.clearedFields[company.FieldDomain]
-	return ok
-}
-
 // ResetDomain resets all changes to the "domain" field.
 func (m *CompanyMutation) ResetDomain() {
 	m.domain = nil
-	delete(m.clearedFields, company.FieldDomain)
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
@@ -321,7 +382,13 @@ func (m *CompanyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompanyMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 4)
+	if m.create_time != nil {
+		fields = append(fields, company.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, company.FieldUpdateTime)
+	}
 	if m.name != nil {
 		fields = append(fields, company.FieldName)
 	}
@@ -336,6 +403,10 @@ func (m *CompanyMutation) Fields() []string {
 // schema.
 func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case company.FieldCreateTime:
+		return m.CreateTime()
+	case company.FieldUpdateTime:
+		return m.UpdateTime()
 	case company.FieldName:
 		return m.Name()
 	case company.FieldDomain:
@@ -349,6 +420,10 @@ func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case company.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case company.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
 	case company.FieldName:
 		return m.OldName(ctx)
 	case company.FieldDomain:
@@ -362,6 +437,20 @@ func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case company.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case company.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
 	case company.FieldName:
 		v, ok := value.(string)
 		if !ok {
@@ -405,11 +494,7 @@ func (m *CompanyMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *CompanyMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(company.FieldDomain) {
-		fields = append(fields, company.FieldDomain)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -422,11 +507,6 @@ func (m *CompanyMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *CompanyMutation) ClearField(name string) error {
-	switch name {
-	case company.FieldDomain:
-		m.ClearDomain()
-		return nil
-	}
 	return fmt.Errorf("unknown Company nullable field %s", name)
 }
 
@@ -434,6 +514,12 @@ func (m *CompanyMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *CompanyMutation) ResetField(name string) error {
 	switch name {
+	case company.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case company.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
 	case company.FieldName:
 		m.ResetName()
 		return nil

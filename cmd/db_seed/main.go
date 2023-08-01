@@ -24,14 +24,14 @@ func main() {
 	deleteCashierUserPermission := pkg.EntClient().Permission.Create().SetTitle("Delete Cashier User").SetValue("delete_cashier_user").SaveX(context.Background())
 	deleteCustomerUserPermission := pkg.EntClient().Permission.Create().SetTitle("Delete Customer User").SetValue("delete_customer_user").SaveX(context.Background())
 
-	// superAdminCompany := pkg.EntClient().Company.Create().SetName("Elitbuzz Technologies Ltd.")
+	superAdminCompany := pkg.EntClient().Company.Create().SetName("Elitbuzz Technologies Ltd.").SetDomain("elibuzz.com.bd").SaveX(context.Background())
+	adminCompany := pkg.EntClient().Company.Create().SetName("Admin Technologies Ltd.").SetDomain("admin.com.bd").SaveX(context.Background())
 
 	saRole := pkg.EntClient().Role.Create().SetTitle("Superadmin").SetValue("SUPERADMIN").SaveX(context.Background())
 	saRole.Update().AddPermissions(createUserPermission, createAdminUserPermission, deleteUserPermission, deleteAdminUserPermission).ExecX(context.Background())
-	// saRole.Update().AddPermissions(createUserPermission, createAdminUserPermission, deleteUserPermission, deleteAdminUserPermission).AddCompanys(superAdminCompany).ExecX(context.Background())
 
 	superadmin := pkg.EntClient().User.Create().SetFirstName("super").SetLastName("admin").
-		SetUsername("superadmin").SetPassword(pkg.Hash("password")).SetRoleID(saRole.ID).
+		SetUsername("superadmin").SetPassword(pkg.Hash("password")).SetRoleID(saRole.ID).SetCompanyID(superAdminCompany.ID).
 		SaveX(context.Background())
 
 	_ = superadmin
@@ -40,16 +40,16 @@ func main() {
 	adminRole.Update().AddPermissions(createUserPermission, createCashierUserPermission, createCustomerUserPermission, deleteUserPermission, deleteCashierUserPermission, deleteCustomerUserPermission).ExecX(context.Background())
 
 	admin := pkg.EntClient().User.Create().SetFirstName("admin").SetLastName("admin").
-		SetUsername("admin").SetPassword(pkg.Hash("password")).SetRoleID(adminRole.ID).
+		SetUsername("admin").SetPassword(pkg.Hash("password")).SetRoleID(adminRole.ID).SetCompanyID(adminCompany.ID).
 		SaveX(context.Background())
 
 	_ = admin
 
 	cashierRole := pkg.EntClient().Role.Create().SetTitle("cashier").SetValue("CASHIER").SaveX(context.Background())
-	cashierRole.Update().AddPermissions(createUserPermission, createCashierUserPermission, createCustomerUserPermission, deleteUserPermission, deleteCashierUserPermission, deleteCustomerUserPermission).ExecX(context.Background())
+	cashierRole.Update().AddPermissions(createUserPermission, createCustomerUserPermission, deleteUserPermission, deleteCustomerUserPermission).ExecX(context.Background())
 
 	cashier := pkg.EntClient().User.Create().SetFirstName("cashier").SetLastName("cashier").
-		SetUsername("cashier").SetPassword(pkg.Hash("password")).SetRoleID(cashierRole.ID).
+		SetUsername("cashier").SetPassword(pkg.Hash("password")).SetRoleID(cashierRole.ID).SetCompanyID(adminCompany.ID).
 		SaveX(context.Background())
 
 	_ = cashier
@@ -57,7 +57,7 @@ func main() {
 	customerRole := pkg.EntClient().Role.Create().SetTitle("customer").SetValue("CUSTOMER").SaveX(context.Background())
 
 	customer := pkg.EntClient().User.Create().SetFirstName("customer").SetLastName("customer").
-		SetUsername("customer").SetPassword(pkg.Hash("password")).SetRoleID(customerRole.ID).
+		SetUsername("customer").SetPassword(pkg.Hash("password")).SetRoleID(customerRole.ID).SetCompanyID(admin.ID).
 		SaveX(context.Background())
 
 	_ = customer

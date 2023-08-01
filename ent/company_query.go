@@ -298,12 +298,12 @@ func (cq *CompanyQuery) WithUsers(opts ...func(*UserQuery)) *CompanyQuery {
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Company.Query().
-//		GroupBy(company.FieldName).
+//		GroupBy(company.FieldCreateTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (cq *CompanyQuery) GroupBy(field string, fields ...string) *CompanyGroupBy {
@@ -321,11 +321,11 @@ func (cq *CompanyQuery) GroupBy(field string, fields ...string) *CompanyGroupBy 
 // Example:
 //
 //	var v []struct {
-//		Name string `json:"name,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.Company.Query().
-//		Select(company.FieldName).
+//		Select(company.FieldCreateTime).
 //		Scan(ctx, &v)
 func (cq *CompanyQuery) Select(fields ...string) *CompanySelect {
 	cq.ctx.Fields = append(cq.ctx.Fields, fields...)
