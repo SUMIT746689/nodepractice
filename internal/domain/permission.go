@@ -12,4 +12,9 @@ const (
 	DELETE_ADMIN_USER    USER_PERMISSION = "delete_admin_user"
 	DELETE_CASHIER_USER  USER_PERMISSION = "delete_cashier_user"
 	DELETE_CUSTOMER_USER USER_PERMISSION = "delete_customer_user"
+
+	INDEX_COMPANY  USER_PERMISSION = "index_company"
+	CREATE_COMPANY USER_PERMISSION = "create_company"
+	UPDATE_COMPANY USER_PERMISSION = "update_company"
+	DELETE_COMPANY USER_PERMISSION = "delete_company"
 )
