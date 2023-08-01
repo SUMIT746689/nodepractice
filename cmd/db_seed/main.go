@@ -15,6 +15,11 @@ func main() {
 
 	pkg.InitEnt()
 
+	indexCompanyPermission := pkg.EntClient().Permission.Create().SetTitle("Index Company").SetValue("index_company").SaveX(context.Background())
+	createCompanyPermission := pkg.EntClient().Permission.Create().SetTitle("Create Company").SetValue("create_company").SaveX(context.Background())
+	updateCompanyPermission := pkg.EntClient().Permission.Create().SetTitle("Update Company").SetValue("update_company").SaveX(context.Background())
+	deleteCompanyPermission := pkg.EntClient().Permission.Create().SetTitle("Delete Company").SetValue("delete_company").SaveX(context.Background())
+
 	createUserPermission := pkg.EntClient().Permission.Create().SetTitle("Create User").SetValue("create_user").SaveX(context.Background())
 	createAdminUserPermission := pkg.EntClient().Permission.Create().SetTitle("Create Admin User").SetValue("create_admin_user").SaveX(context.Background())
 	createCashierUserPermission := pkg.EntClient().Permission.Create().SetTitle("Create Cashier User").SetValue("create_cashier_user").SaveX(context.Background())
@@ -28,7 +33,7 @@ func main() {
 	adminCompany := pkg.EntClient().Company.Create().SetName("Admin Technologies Ltd.").SetDomain("admin.com.bd").SaveX(context.Background())
 
 	saRole := pkg.EntClient().Role.Create().SetTitle("Superadmin").SetValue("SUPERADMIN").SaveX(context.Background())
-	saRole.Update().AddPermissions(createUserPermission, createAdminUserPermission, deleteUserPermission, deleteAdminUserPermission).ExecX(context.Background())
+	saRole.Update().AddPermissions(indexCompanyPermission, createCompanyPermission, updateCompanyPermission, deleteCompanyPermission, createUserPermission, createAdminUserPermission, deleteUserPermission, deleteAdminUserPermission).ExecX(context.Background())
 
 	superadmin := pkg.EntClient().User.Create().SetFirstName("super").SetLastName("admin").
 		SetUsername("superadmin").SetPassword(pkg.Hash("password")).SetRoleID(saRole.ID).SetCompanyID(superAdminCompany.ID).
