@@ -6,6 +6,6 @@ type Company struct {
 }
 
 type UpdateCompanyRequest struct {
-	Name   string `json:"name",max=50"`
-	Domain string `json:"domain"`
+	Name   string `json:"name" validate:"max=50"`
+	Domain string `json:"domain" validate:"max=50"`
 }

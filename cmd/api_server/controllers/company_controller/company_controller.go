@@ -1,8 +1,6 @@
 package usercontroller
 
 import (
-	"log"
-	"pos/ent/role"
 	"pos/internal/domain"
 	"pos/pkg"
 
@@ -17,7 +15,11 @@ func Index(c *fiber.Ctx) error {
 	// 	return c.SendStatus(fiber.StatusInternalServerError)
 	// }
 
-	users_, err := pkg.EntClient().Role.Query().Where(role.Value("ADMIN")).QueryUsers().All(c.Context())
+	if allowed := indexCompanyGuard(c); !allowed {
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+
+	users_, err := pkg.EntClient().Company.Query().All(c.Context())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -44,7 +46,6 @@ func Create(c *fiber.Ctx) error {
 	u, err := pkg.EntClient().Company.Create().SetName(name).SetDomain(domain).Save(c.Context())
 
 	if err != nil {
-		log.Println(err)
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
@@ -61,6 +62,10 @@ func Update(c *fiber.Ctx) error {
 	err = pkg.BindNValidate(c, req)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnprocessableEntity)
+	}
+
+	if allowed := updateCompanyGuard(c); !allowed {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
 	q := pkg.EntClient().Company.UpdateOneID(userID)
@@ -91,7 +96,7 @@ func Delete(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	err = pkg.EntClient().User.DeleteOneID(userID).Exec(c.Context())
+	err = pkg.EntClient().Company.DeleteOneID(userID).Exec(c.Context())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
