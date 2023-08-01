@@ -4,19 +4,22 @@ import { userApi } from './services/user'
 import { setupListeners } from '@reduxjs/toolkit/dist/query'
 import { authApi } from './services/auth';
 import { roleApi } from './services/role';
+import { companyApi } from './services/company';
 
 export const store = configureStore({
   reducer: {
     user: users,
-    [userApi.reducerPath]:userApi.reducer,
-    [authApi.reducerPath]:authApi.reducer,
-    [roleApi.reducerPath]:roleApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
+    [authApi.reducerPath]: authApi.reducer,
+    [roleApi.reducerPath]: roleApi.reducer,
+    [companyApi.reducerPath]: companyApi.reducer,
   },
   devTools: true,
-  middleware: (getDefaultMiddleware)=>getDefaultMiddleware()
-  .concat(userApi.middleware)
-  .concat(authApi.middleware)
-  .concat(roleApi.middleware)
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware()
+    .concat(userApi.middleware)
+    .concat(authApi.middleware)
+    .concat(roleApi.middleware)
+    .concat(companyApi.middleware)
 });
 
 
