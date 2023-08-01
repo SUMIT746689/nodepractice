@@ -14,6 +14,7 @@ import { store } from './redux/store.ts'
 import { MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications';
 import ErrorBoundary from './components/ErrorBoundary.tsx'
+import Company from './routes/companies.tsx'
 const router = createBrowserRouter([
   {
     path: "/",
@@ -39,6 +40,16 @@ const router = createBrowserRouter([
       {
         path: "/users",
         element: <UserIndex />,
+        loader: async () => {
+          if (!await isLoggedIn()) {
+            return redirect("/login")
+          }
+          return await userList()
+        },
+      },
+      {
+        path: "/companies",
+        element: <Company />,
         loader: async () => {
           if (!await isLoggedIn()) {
             return redirect("/login")

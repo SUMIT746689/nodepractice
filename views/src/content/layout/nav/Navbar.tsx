@@ -84,13 +84,18 @@ export function NavbarNested() {
             {/* <CustomNavLink label="dashboard" icon={<IconActivity />} > */}
               <RouterNavLink to="/dashboard" className={" no-underline"} >
                 {({ isActive }) => (
-                  <CustomNavLink label="dashboard" icon={<IconDashboard/>} isActive={isActive} />
+                  <CustomNavLink label="Dashboard" icon={<IconDashboard/>} isActive={isActive} />
                 )}
               </RouterNavLink>
             {/* </CustomNavLink> */}
             <RouterNavLink to="/users" className={permisionsVerify(["create_user"], permissions) ? "no-underline" : "hidden"}>
               {({ isActive }) => (
-                <CustomNavLink label="users" icon={<IconUsers />} isActive={isActive} />
+                <CustomNavLink label="Users" icon={<IconUsers />} isActive={isActive} />
+              )}
+            </RouterNavLink>
+            <RouterNavLink to="/companies" className={permisionsVerify(["create_user"], permissions) ? "no-underline" : "hidden"}>
+              {({ isActive }) => (
+                <CustomNavLink label="Companies" icon={<IconUsers />} isActive={isActive} />
               )}
             </RouterNavLink>
           </>

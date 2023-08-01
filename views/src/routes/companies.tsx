@@ -1,12 +1,12 @@
 
 import { PageHeaderWrapper } from "@/components/PageHeaderWrapper";
-import CreateOrUpdateData from "@/content/users/CreateOrUpdateData";
-import ShowData from "@/content/users/ShowData";
+import CreateOrUpdateData from "@/content/companies/CreateOrUpdateData";
+import ShowData from "@/content/companies/ShowData";
 import { User } from "@/types/users";
 import { useState } from "react";
 
 
-export default function UserIndex() {
+export default function Companies() {
 
   const [editUser, setEditUser] = useState<User>();
 
@@ -16,7 +16,7 @@ export default function UserIndex() {
 
   return (
     <>
-      <PageHeaderWrapper name="Users">
+      <PageHeaderWrapper name="Companies">
         <CreateOrUpdateData editData={editUser} setEditData={setEditUser} />
       </PageHeaderWrapper>
 
