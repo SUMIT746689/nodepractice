@@ -24,3 +24,6 @@ go run -mod=mod entgo.io/ent/cmd/ent new SchemaName
 
 <!-- for seed -->
 go run cmd/db_seed/main.go
+
+<!-- for backend run -->
+docker compose up --build
