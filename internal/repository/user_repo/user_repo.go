@@ -9,7 +9,7 @@ import (
 
 func Save(ctx context.Context, u *app.User) (*ent.User, error) {
 	createQuery := pkg.EntClient().User.Create().SetFirstName(u.FirstName).SetLastName(u.LastName).SetUsername(u.Username).
-		SetPassword(pkg.Hash(u.Password)).SetRoleID(u.RoleID)
+		SetPassword(pkg.Hash(u.Password)).SetRoleID(u.RoleID).SetCompanyID(u.CompanyID)
 
 	if u.PhoneNumber != "" {
 		createQuery.SetPhoneNumber(u.PhoneNumber)

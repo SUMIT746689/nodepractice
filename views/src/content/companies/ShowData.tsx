@@ -1,6 +1,6 @@
 import PaginationWithPageSizeSelectorWrapper from "@/components/PaginationWithPageSizeSelectorWrapper";
-import { useDeleteUserMutation, useGetAllUsersQuery } from "@/redux/services/user";
-import { User } from "@/types/users";
+import { useDeleteCompanyMutation, useGetAllCompaniesQuery } from "@/redux/services/company";
+import { Company } from "@/types/company";
 import { ActionIcon, Group, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
@@ -8,19 +8,17 @@ import React from "react";
 
 
 interface ShowDataInterface {
-  // setEditUser: React.Component<User,User>
-  // setEditUser: any;
-  addEditData: (arg: User) => void;
+  addEditData: (arg: Company) => void;
 }
 
 const ShowData: React.FC<ShowDataInterface> = ({ addEditData }) => {
 
-  const { data: users } = useGetAllUsersQuery();
-  const [deleteUser] = useDeleteUserMutation();
-  console.log({ users })
+  const { data: companies } = useGetAllCompaniesQuery();
+  const [deleteUser] = useDeleteCompanyMutation();
+  
   const handleDelete = (id: number): void => {
     deleteUser(id).unwrap()
-      .then(() => { notifications.show({ message: 'deleted successfully', }) })
+      .then(() => { notifications.show({ message: 'Company deleted successfully', }) })
       .catch((error: { message: string }) => { notifications.show({ message: error.message, color: 'red' }) })
   }
 
@@ -29,17 +27,15 @@ const ShowData: React.FC<ShowDataInterface> = ({ addEditData }) => {
       <PaginationWithPageSizeSelectorWrapper
         headColumns={[
           { accessor: 'id', width: 100 },
-          { accessor: 'first_name' },
-          { accessor: 'last_name' },
-          { accessor: 'username' },
-          { accessor: 'email' },
-          // { accessor: 'role.title' },
-          { accessor: 'phone_number' },
+          { accessor: 'name' },
+          { accessor: 'domain' },
+          { accessor: 'create_time', },
+          { accessor: 'update_time' },
           {
             accessor: 'actions',
-            title: <Text mr="xs">Row actions</Text>,
+            title: <Text mr="xs">actions</Text>,
             textAlignment: 'right',
-            render: (data: User) => (
+            render: (data: Company) => (
               <Group spacing={4} position="right" noWrap>
                 <ActionIcon color="sky" onClick={() => addEditData(data)}>
                   <IconEdit size={20} />
@@ -51,7 +47,7 @@ const ShowData: React.FC<ShowDataInterface> = ({ addEditData }) => {
             ),
           },
         ]}
-        datas={users || []}
+        datas={companies || []}
       />
     </>
   )

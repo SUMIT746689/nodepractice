@@ -18,4 +18,5 @@ type User struct {
 	PhoneNumber     string `json:"phone_number" validate:"omitempty,numeric"`
 	Email           string `json:"email" validate:"omitempty,email"`
 	RoleID          int    `json:"role_id" validate:"required"`
+	CompanyID       int    `json:"company_id" validate:""`
 }

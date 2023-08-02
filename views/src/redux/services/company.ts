@@ -1,5 +1,5 @@
 import { API_KEY } from '@/secret';
-import { Company } from '@/types/company';
+import { Company, CreateCompany, UpdateCompany } from '@/types/company';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 
@@ -13,11 +13,11 @@ export const companyApi = createApi({
   // refetchOnReconnect: true,
   endpoints: (builder) => ({
     getAllCompanies: builder.query<Company[] | [], void>({
-      query: () => ("/"),
+      query: () => ('/'),
       transformResponse: (response: { companies: Company[] | [] }) => response.companies,
       providesTags: [{ type: "Companies", id: "LIST" }],
     }),
-    postCompany: builder.mutation<Company, Company>({
+    postCompany: builder.mutation<Company, CreateCompany>({
       query: (body) => ({
         url: '/',
         method: 'POST',
@@ -27,7 +27,7 @@ export const companyApi = createApi({
       // transformResponse: (result: { data: { users: any } }) =>result.data.users)
     }),
 
-    updateCompany: builder.mutation<string, {id:number,body: Company}>({
+    updateCompany: builder.mutation<string, {id:number,body: UpdateCompany}>({
       query: ({ id, body }) => ({
         url: `/${JSON.stringify(id)}`,
         method: 'PATCH',

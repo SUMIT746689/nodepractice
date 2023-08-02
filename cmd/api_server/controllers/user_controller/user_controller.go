@@ -21,7 +21,7 @@ func Index(c *fiber.Ctx) error {
 
 	switch role_.Value {
 	case "SUPERADMIN":
-		users_, err := pkg.EntClient().Role.Query().Where(role.Value("ADMIN")).QueryUsers().All(c.Context())
+		users_, err := pkg.EntClient().Role.Query().Where(role.Value("ADMIN")).QueryUsers().WithCompany().All(c.Context())
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
@@ -29,7 +29,7 @@ func Index(c *fiber.Ctx) error {
 			"users": users_,
 		})
 	case "ADMIN":
-		users_, err := pkg.EntClient().Role.Query().Where(role.Not(role.Value("SUPERADMIN")), role.Not(role.Value("ADMIN"))).QueryUsers().All(c.Context())
+		users_, err := pkg.EntClient().Role.Query().Where(role.Not(role.Value("SUPERADMIN")), role.Not(role.Value("ADMIN"))).QueryUsers().WithCompany().All(c.Context())
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
@@ -45,14 +45,23 @@ func Index(c *fiber.Ctx) error {
 
 func Create(c *fiber.Ctx) error {
 	req := new(app.User)
+	body := new(app.User)
+
+	if err := c.BodyParser(body); err != nil {
+		println(err)
+	}
 
 	err := pkg.BindNValidate(c, req)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnprocessableEntity)
 	}
 
-	if allowed := createUserGuard(c); !allowed {
+	allowed, companyID := createUserGuard(c, body.RoleID, body.CompanyID)
+	if !allowed {
 		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+	if companyID != 0 {
+		req.CompanyID = companyID
 	}
 
 	u, err := userrepo.Save(c.Context(), req)
@@ -67,6 +76,7 @@ func Create(c *fiber.Ctx) error {
 func Update(c *fiber.Ctx) error {
 	req := new(updateUserRequest)
 	userID, err := c.ParamsInt("id")
+
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -74,6 +84,11 @@ func Update(c *fiber.Ctx) error {
 	err = pkg.BindNValidate(c, req)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnprocessableEntity)
+	}
+
+	allowed, canUpdateCompany := updateUserGuard(c, userID)
+	if !allowed {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
 	q := pkg.EntClient().User.UpdateOneID(userID).SetFirstName(req.FirstName).SetLastName(req.LastName).SetUsername(req.Username)
@@ -88,6 +103,14 @@ func Update(c *fiber.Ctx) error {
 		q.SetEmail(req.Email)
 	} else {
 		q.SetNillableEmail(nil)
+	}
+
+	if canUpdateCompany {
+		if req.CompanyID != 0 {
+			q.SetCompanyID(req.CompanyID)
+		} else {
+			q.SetNillableEmail(nil)
+		}
 	}
 
 	_, err = q.Save(c.Context())
@@ -122,4 +145,5 @@ type updateUserRequest struct {
 	Username    string `json:"username" validate:"required"`
 	PhoneNumber string `json:"phone_number" validate:"omitempty,numeric"`
 	Email       string `json:"email" validate:"omitempty,email"`
+	CompanyID   int    `json:"company_id" validate:""`
 }
