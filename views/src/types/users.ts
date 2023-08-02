@@ -7,6 +7,8 @@ export interface User {
   email?: string;
   phone_number?: string;
   role_id: number;
+  company_id: number;
+
 }
 export interface CreateUser {
   username: string;
@@ -15,6 +17,7 @@ export interface CreateUser {
   email?: string;
   phone_number?: string;
   role_id: number;
+  company_id?: number;
 }
 
 export interface GetAllUsersInterface{

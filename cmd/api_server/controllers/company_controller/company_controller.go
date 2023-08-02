@@ -19,12 +19,12 @@ func Index(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	users_, err := pkg.EntClient().Company.Query().All(c.Context())
+	companies_, err := pkg.EntClient().Company.Query().All(c.Context())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(fiber.Map{
-		"users": users_,
+		"companies": companies_,
 	})
 }
 

@@ -7,29 +7,34 @@ import { User } from "@/types/users";
 import { notifications } from "@mantine/notifications";
 import { useCreateUserPermitRoleQuery } from "@/redux/services/role";
 import { Role } from "@/types/role";
+import { FormSubmitButtonWrapper } from "@/components/ButtonWrapper";
+import { useGetAllCompaniesQuery } from "@/redux/services/company";
+import { Company } from "@/types/company";
 
-interface CreateOrUodateDataInterFace {
+interface CreateOrUpdateDataInterFace {
   editData: User | null | undefined;
   // eslint-disable-next-line @typescript-eslint/ban-types
   setEditData: Function;
   // authUser: AuthUser | undefined;
 }
 
-interface CreateOrUodateFormInterFace {
+interface CreateOrUpdateFormInterFace {
   username: string;
   first_name: string;
   last_name: string;
   email: string;
   phone_number: string;
   role_id: string;
+  company_id: string;
 }
 
-const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, setEditData }) => {
+const CreateOrUpdateData: React.FC<CreateOrUpdateDataInterFace> = ({ editData, setEditData }) => {
 
- 
+
   const [open, setOpen] = useState(false);
   const { data: roles } = useCreateUserPermitRoleQuery();
-  console.log({roles})
+  const { data: companies } = useGetAllCompaniesQuery();
+  console.log({ roles,companies })
   useEffect(() => {
     if (editData) setOpen(true);
   }, [editData]);
@@ -42,7 +47,7 @@ const CreateOrUpdateData: React.FC<CreateOrUodateDataInterFace> = ({ editData, s
     <>
       <Modal opened={open} onClose={handleModalClose} title="User" centered>
         {/* Modal content */}
-        <Form editData={editData} handleModalClose={handleModalClose} roles={roles || []} />
+        <Form editData={editData} handleModalClose={handleModalClose} roles={roles || []} companies={companies || []} />
       </Modal>
 
       <Group position="center" pr={20} >
@@ -56,12 +61,13 @@ interface FormInterface {
   editData: User | undefined | null;
   handleModalClose: () => void;
   roles: Role[] | [];
+  companies: Company[] | []
 }
 
-const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles }) => {
+const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles, companies }) => {
   const [createUser, { isLoading: isCreateLoading }] = usePostUserMutation()
   const [updateUser, { isLoading: isUpdateLoading }] = useUpdateUserMutation()
-
+  console.log({companies});
 
   const form = useForm({
     initialValues: {
@@ -73,6 +79,7 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles }) =>
       password: '',
       confirm_password: '',
       role_id: '',
+      company_id: '',
       // termsOfService: false,
     },
     validate: {
@@ -84,19 +91,20 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles }) =>
       password: (value) => (editData || /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value) ? null : 'Minimum eight characters, at least one letter and one number'),
       confirm_password: (value, values) => ((value === values.password) ? null : 'Password did not match'),
       role_id: (value) => (/^\d+$/.test(value) ? null : 'Select a role'),
+      company_id: (value) => (companies.length === 0 || (/^\d+$/.test(value)) ? null : 'Select a company'),
     },
   });
 
   useEffect(() => {
     if (editData) {
-      form.setValues((prev) => ({ ...prev, ...editData, role_id: String(editData.role_id) }));
+      form.setValues((prev) => ({ ...prev, ...editData, role_id: String(editData.role_id), company_id: String(editData.company_id) }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFormSubmit = (values: CreateOrUodateFormInterFace): void => {
+  const handleFormSubmit = (values: CreateOrUpdateFormInterFace): void => {
 
-    const customizeValues = { ...values, role_id: Number(values.role_id) }
+    const customizeValues = { ...values, role_id: Number(values.role_id), company_id: Number(values.company_id) }
     if (editData) {
       updateUser({ user_id: editData.id, body: customizeValues })
         .unwrap()
@@ -119,7 +127,7 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles }) =>
   return (
     <Box maw={500} mx="auto" pos="relative" px={40}>
       <LoadingOverlay visible={isCreateLoading || isUpdateLoading} overlayBlur={2} />
-      <form onSubmit={form.onSubmit((values: CreateOrUodateFormInterFace): void => handleFormSubmit(values))} >
+      <form onSubmit={form.onSubmit((values: CreateOrUpdateFormInterFace): void => handleFormSubmit(values))} >
 
         <Grid grow gutter="xs">
           <Grid.Col span={4}>
@@ -187,16 +195,23 @@ const Form: React.FC<FormInterface> = ({ editData, handleModalClose, roles }) =>
           }
         />
 
+        {
+          companies.length > 0 &&
+          <Select
+            withAsterisk
+            label="Select Company"
+            placeholder="Select Company"
+            {...form.getInputProps('company_id')}
+            // sx={{"::selection":{backgroundColor:'orange'}}}
+            data={
+              companies?.map(({ id, name }: { id: number, name: string }) => ({ value: String(id), label: name }))
+            }
+          />
+        }
 
-        {/* <Checkbox
-          mt="md"
-          label="I agree to sell my privacy"
-          {...form.getInputProps('termsOfService', { type: 'checkbox' })}
-        /> */}
-
-        <Group position="right" mt="md">
-          <Button type="submit" variant="filled" className=" bg-orange-600 hover:bg-orange-700" >Submit</Button>
-        </Group>
+        <FormSubmitButtonWrapper>
+          Submit
+        </FormSubmitButtonWrapper>
       </form>
     </Box>
   );

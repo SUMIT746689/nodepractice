@@ -16,11 +16,12 @@ import React, { useEffect, useState } from 'react';
 interface PaginateTableWrapper {
   headColumns: any[];
   datas: object[] | [undefined];
+  minHeight?: number;
 }
 
 const PAGE_SIZES = [10, 15, 20];
 
-const PaginationWithPageSizeSelectorWrapper: React.FC<PaginateTableWrapper> = ({ headColumns = [], datas = [] }) => {
+const PaginationWithPageSizeSelectorWrapper: React.FC<PaginateTableWrapper> = ({ headColumns = [], datas = [], minHeight = 300 }) => {
   const [pageSize, setPageSize] = useState(PAGE_SIZES[1]);
 
   useEffect(() => {
@@ -44,6 +45,7 @@ const PaginationWithPageSizeSelectorWrapper: React.FC<PaginateTableWrapper> = ({
         withColumnBorders
         records={records}
         columns={headColumns}
+        minHeight={minHeight}
         // columns={[
         //   { accessor: 'firstName', width: 100 },
         // render: ({ birthDate }) => dayjs(birthDate).format('MMM D YYYY'),

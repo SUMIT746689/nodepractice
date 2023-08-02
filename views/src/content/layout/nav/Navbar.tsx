@@ -1,5 +1,5 @@
 import { Navbar, Group, Code, ScrollArea, createStyles, rem, NavLink, LoadingOverlay } from '@mantine/core';
-import { IconActivity, IconDashboard, IconUserCircle, IconUsers } from '@tabler/icons-react';
+import { IconActivity, IconCircuitGround, IconDashboard, IconUserCircle, IconUsers } from '@tabler/icons-react';
 import { Logo } from './Logo';
 import NavHeader from './NavHeader';
 import { NavFooter } from './NavFooter';
@@ -95,7 +95,7 @@ export function NavbarNested() {
             </RouterNavLink>
             <RouterNavLink to="/companies" className={permisionsVerify(["create_user"], permissions) ? "no-underline" : "hidden"}>
               {({ isActive }) => (
-                <CustomNavLink label="Companies" icon={<IconUsers />} isActive={isActive} />
+                <CustomNavLink label="Companies" icon={<IconCircuitGround />} isActive={isActive} />
               )}
             </RouterNavLink>
           </>

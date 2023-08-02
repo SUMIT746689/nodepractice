@@ -8,6 +8,11 @@ const (
 	CREATE_CASHIER_USER  USER_PERMISSION = "create_cashier_user"
 	CREATE_CUSTOMER_USER USER_PERMISSION = "create_customer_user"
 
+	UPDATE_USER          USER_PERMISSION = "update_user"
+	UPDATE_ADMIN_USER    USER_PERMISSION = "update_admin_user"
+	UPDATE_CASHIER_USER  USER_PERMISSION = "update_cashier_user"
+	UPDATE_CUSTOMER_USER USER_PERMISSION = "update_customer_user"
+
 	DELETE_USER          USER_PERMISSION = "delete_user"
 	DELETE_ADMIN_USER    USER_PERMISSION = "delete_admin_user"
 	DELETE_CASHIER_USER  USER_PERMISSION = "delete_cashier_user"
