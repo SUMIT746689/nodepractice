@@ -24,9 +24,11 @@ func main() {
 	v1 := api.Group("/v1")
 
 	v1.Mount("", routes.AuthRoutes())
-	v1.Mount("", routes.CompanyRoutes())
 	v1.Mount("", routes.UserRoutes())
 	v1.Mount("", routes.AuthorizationRoutes())
+	v1.Mount("", routes.CompanyRoutes())
+	v1.Mount("", routes.SupplierRoutes())
+	v1.Mount("", routes.VenderRoutes())
 
 	if err := app.Listen(":8080"); err != nil {
 		panic(err)

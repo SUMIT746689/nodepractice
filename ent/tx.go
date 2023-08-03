@@ -18,8 +18,12 @@ type Tx struct {
 	Permission *PermissionClient
 	// Role is the client for interacting with the Role builders.
 	Role *RoleClient
+	// Supplier is the client for interacting with the Supplier builders.
+	Supplier *SupplierClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
+	// Vendor is the client for interacting with the Vendor builders.
+	Vendor *VendorClient
 
 	// lazily loaded.
 	client     *Client
@@ -154,7 +158,9 @@ func (tx *Tx) init() {
 	tx.Company = NewCompanyClient(tx.config)
 	tx.Permission = NewPermissionClient(tx.config)
 	tx.Role = NewRoleClient(tx.config)
+	tx.Supplier = NewSupplierClient(tx.config)
 	tx.User = NewUserClient(tx.config)
+	tx.Vendor = NewVendorClient(tx.config)
 }
 
 // txDriver wraps the given dialect.Tx with a nop dialect.Driver implementation.

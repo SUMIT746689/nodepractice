@@ -3,6 +3,7 @@ package usercontroller
 import (
 	"log"
 	"pos/ent/role"
+	"pos/ent/user"
 	"pos/internal/app"
 	userrepo "pos/internal/repository/user_repo"
 	"pos/pkg"
@@ -28,11 +29,35 @@ func Index(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
 			"users": users_,
 		})
+
 	case "ADMIN":
-		users_, err := pkg.EntClient().Role.Query().Where(role.Not(role.Value("SUPERADMIN")), role.Not(role.Value("ADMIN"))).QueryUsers().WithCompany().All(c.Context())
+		id, _ := pkg.GetAuthedUser(c)
+		user_, err := pkg.EntClient().User.Query().Where(user.ID(id)).WithCompany().First(c.Context())
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+
+		users_, err := pkg.EntClient().User.Query().Where(user.IDNEQ(user_.ID), user.CompanyID(user_.CompanyID)).WithCompany().All(c.Context())
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
+		return c.JSON(fiber.Map{
+			"users": users_,
+		})
+
+	case "CASHIER":
+		id, _ := pkg.GetAuthedUser(c)
+		user_, err := pkg.EntClient().User.Query().Where(user.ID(id)).WithCompany().First(c.Context())
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+		users_, err := pkg.EntClient().Role.Query().Where(role.ValueEQ("CUSTOMER")).QueryUsers().Where(user.CompanyIDEQ(user_.CompanyID)).WithCompany().All(c.Context())
+		// users_, err := pkg.EntClient().User.Query().Where(user.CompanyID(user_.CompanyID)).WithCompany().All(c.Context())
+		if err != nil {
+			return c.SendStatus(fiber.StatusInternalServerError)
+		}
+
 		return c.JSON(fiber.Map{
 			"users": users_,
 		})
@@ -87,6 +112,7 @@ func Update(c *fiber.Ctx) error {
 	}
 
 	allowed, canUpdateCompany := updateUserGuard(c, userID)
+	println("updated allowed", allowed, canUpdateCompany)
 	if !allowed {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
@@ -108,8 +134,6 @@ func Update(c *fiber.Ctx) error {
 	if canUpdateCompany {
 		if req.CompanyID != 0 {
 			q.SetCompanyID(req.CompanyID)
-		} else {
-			q.SetNillableEmail(nil)
 		}
 	}
 

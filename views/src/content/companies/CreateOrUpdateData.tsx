@@ -30,7 +30,7 @@ const CreateOrUpdateData: React.FC<CreateOrUpdateDataInterFace> = ({ editData, a
   }
   return (
     <>
-      <Modal opened={open} onClose={handleModalClose} title="User" centered>
+      <Modal opened={open} onClose={handleModalClose} title="Company" centered>
         {/* Modal content */}
         <Form editData={editData} handleModalClose={handleModalClose} />
       </Modal>

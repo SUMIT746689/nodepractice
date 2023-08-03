@@ -1,4 +1,4 @@
-package companycontroller
+package suppliercontroller
 
 import (
 	"pos/internal/domain"
@@ -15,35 +15,46 @@ func Index(c *fiber.Ctx) error {
 	// 	return c.SendStatus(fiber.StatusInternalServerError)
 	// }
 
-	if allowed := indexCompanyGuard(c); !allowed {
+	if allowed := indexGuard(c); !allowed {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	companies_, err := pkg.EntClient().Company.Query().All(c.Context())
+	suppliers_, err := pkg.EntClient().Supplier.Query().All(c.Context())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(fiber.Map{
-		"companies": companies_,
+		"suppliers": suppliers_,
 	})
 }
 
 func Create(c *fiber.Ctx) error {
-	req := new(domain.Company)
+	req := new(domain.Supplier)
 
 	err := pkg.BindNValidate(c, req)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnprocessableEntity)
 	}
 
-	if allowed := createCompanyGuard(c); !allowed {
+	if allowed := createGuard(c); !allowed {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
 	name := req.Name
-	domain := req.Domain
+	address := req.Address
+	email := req.Email
+	representative := req.Representative
 
-	u, err := pkg.EntClient().Company.Create().SetName(name).SetDomain(domain).Save(c.Context())
+	u := pkg.EntClient().Supplier.Create().SetName(name).SetEmail(email).SetRepresentative(domain.Representative(*representative))
+
+	if req.Address != "" {
+		u.SetAddress(address)
+	}
+
+	_, err = u.Save(c.Context())
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
 
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -53,7 +64,7 @@ func Create(c *fiber.Ctx) error {
 }
 
 func Update(c *fiber.Ctx) error {
-	req := new(domain.UpdateCompanyRequest)
+	req := new(domain.UpdateSupplier)
 	userID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -64,18 +75,20 @@ func Update(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnprocessableEntity)
 	}
 
-	if allowed := updateCompanyGuard(c); !allowed {
+	if allowed := updateGuard(c); !allowed {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	q := pkg.EntClient().Company.UpdateOneID(userID)
+	q := pkg.EntClient().Supplier.UpdateOneID(userID)
 
 	if req.Name != "" {
 		q.SetName(req.Name)
 	}
-
-	if req.Domain != "" {
-		q.SetDomain(req.Domain)
+	if req.Name != "" {
+		q.SetName(req.Name)
+	}
+	if req.Email != "" {
+		q.SetEmail(req.Email)
 	}
 
 	_, err = q.Save(c.Context())
@@ -92,11 +105,11 @@ func Delete(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 
-	if allowed := deleteCompanyGuard(c); !allowed {
+	if allowed := deleteGuard(c); !allowed {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 
-	err = pkg.EntClient().Company.DeleteOneID(userID).Exec(c.Context())
+	err = pkg.EntClient().Supplier.DeleteOneID(userID).Exec(c.Context())
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}

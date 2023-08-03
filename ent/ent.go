@@ -9,7 +9,9 @@ import (
 	"pos/ent/company"
 	"pos/ent/permission"
 	"pos/ent/role"
+	"pos/ent/supplier"
 	"pos/ent/user"
+	"pos/ent/vendor"
 	"reflect"
 	"sync"
 
@@ -79,7 +81,9 @@ func checkColumn(table, column string) error {
 			company.Table:    company.ValidColumn,
 			permission.Table: permission.ValidColumn,
 			role.Table:       role.ValidColumn,
+			supplier.Table:   supplier.ValidColumn,
 			user.Table:       user.ValidColumn,
+			vendor.Table:     vendor.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

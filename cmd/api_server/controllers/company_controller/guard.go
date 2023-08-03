@@ -1,4 +1,4 @@
-package usercontroller
+package companycontroller
 
 import (
 	"pos/internal/domain"
