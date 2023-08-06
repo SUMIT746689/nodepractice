@@ -51,10 +51,11 @@ func Create(c *fiber.Ctx) error {
 		u.SetAddress(address)
 	}
 
-	_, err = u.Save(c.Context())
-	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
+	c = u.SaveX(c.Context())
+	println("response", c)
+	// if err != nil {
+	// 	return c.SendStatus(fiber.StatusInternalServerError)
+	// }
 
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)

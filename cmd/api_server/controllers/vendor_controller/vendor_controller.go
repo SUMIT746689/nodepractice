@@ -29,7 +29,7 @@ func Index(c *fiber.Ctx) error {
 }
 
 func Create(c *fiber.Ctx) error {
-	req := new(domain.Supplier)
+	req := new(domain.Vendor)
 
 	err := pkg.BindNValidate(c, req)
 	if err != nil {
@@ -53,7 +53,7 @@ func Create(c *fiber.Ctx) error {
 }
 
 func Update(c *fiber.Ctx) error {
-	req := new(domain.UpdateSupplier)
+	req := new(domain.UpdateVendor)
 	userID, err := c.ParamsInt("id")
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
